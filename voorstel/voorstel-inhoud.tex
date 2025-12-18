@@ -1,6 +1,6 @@
 %---------- Inleiding ---------------------------------------------------------
 
-% TODO: Is dit voorstel gebaseerd op een paper van Research Methods die je
+% Is dit voorstel gebaseerd op een paper van Research Methods die je
 % vorig jaar hebt ingediend? Heb je daarbij eventueel samengewerkt met een
 % andere student?
 % Zo ja, haal dan de tekst hieronder uit commentaar en pas aan.
@@ -15,37 +15,73 @@
 \section{Inleiding}%
 \label{sec:inleiding}
 
-Waarover zal je bachelorproef gaan? Introduceer het thema en zorg dat volgende zaken zeker duidelijk aanwezig zijn:
+Deze bachelorproef richt zich op het automatiseren van CRA-compliance aan de hand van\\CI/CD-pipelines binnen de softwareontwikkeling bij Excentis, een bedrijf dat netwerkhardware zoals de ByteBlower en XRA ontwikkelt en verkoopt. Door de invoering van de Europese Cyber Resilience Act (CRA) krijgen digitale producten striktere cybersecurity verplichtingen \parencite{EU_CRA}. Hierdoor moet software tegen december 2027 voldoen aan de vereisten van de CRA wetgeving om een CE-label te verkrijgen \parencite{EuropeanCommission2024CRAnews}. \begin{tcolorbox}[colback=probkleur, colframe=probkleur, boxrule=0pt, sharp corners, enhanced, breakable]Dit betekent dat de software die door Excentis wordt ontwikkeld conform moet zijn met deze wetgeving. Dit is dus een grote uitdaging voor zowel development teams als management teams. Volgens \textcite{Robyn2025} verwachten de klanten dat Excentis hier ook expliciet mee aan de slag gaat, waardoor het probleem een concrete en bedrijfsrelevante casus vormt. Dit verzekert niet alleen CRA-compliance, maar het ondersteunt ook het klantenvertrouwen, waardoor de producten veilig en op tijd op de markt kunnen worden gebracht.\end{tcolorbox}
 
-\begin{itemize}
-  \item kaderen thema
-  \item de doelgroep
-  \item de probleemstelling en (centrale) onderzoeksvraag
-  \item de onderzoeksdoelstelling
-\end{itemize}
+Het doel van de bachelorproef is het ontwerpen en implementeren van een volledige CI/CD-pipeline die automatisch de CRA-compliance van de software controleert. Hierdoor zal het onderzoek ook een concrete oplossing bieden voor de specifieke probleemsituatie van Excentis, namelijk het waarborgen van veilige en CRA-compliant software, binnen de gestelde deadlines van de CRA. De gemaakte pipeline zal dienen als een Proof of Concept en laat Excentis toe om kwetsbaarheden te vinden, een Software Bill of Materials (SBOM) te genereren en hiertegen CVE-scans uit te voeren, waarbij er automatisch een rapportage plaatsvindt naar de betrokken development en management teams. 
 
-Denk er aan: een typische bachelorproef is \textit{toegepast onderzoek}, wat betekent dat je start vanuit een concrete probleemsituatie in bedrijfscontext, een \textbf{casus}. Het is belangrijk om je onderwerp goed af te bakenen: je gaat voor die \textit{ene specifieke probleemsituatie} op zoek naar een goede oplossing, op basis van de huidige kennis in het vakgebied.
+De centrale onderzoeksvraag is dan ook: Hoe kan een CI/CD-pipeline geautomatiseerd worden om CRA-compliant te zijn? Het verwachte eindresultaat van deze bachelorproef is dan ook een werkende CI/CD-pipeline die voldoet aan de vereisten van Excentis. Aangezien dit onderzoek expliciet gericht is op Excentis en hun interne teams, is deze oplossing goed afgebakend en direct toepasbaar binnen de bedrijfscontext.
 
-De doelgroep moet ook concreet en duidelijk zijn, dus geen algemene of vaag gedefinieerde groepen zoals \emph{bedrijven}, \emph{developers}, \emph{Vlamingen}, enz. Je richt je in elk geval op it-professionals, een bachelorproef is geen populariserende tekst. Eén specifiek bedrijf (die te maken hebben met een concrete probleemsituatie) is dus beter dan \emph{bedrijven} in het algemeen.
-
-Formuleer duidelijk de onderzoeksvraag! De begeleiders lezen nog steeds te veel voorstellen waarin we geen onderzoeksvraag terugvinden.
-
-Schrijf ook iets over de doelstelling. Wat zie je als het concrete eindresultaat van je onderzoek, naast de uitgeschreven scriptie? Is het een proof-of-concept, een rapport met aanbevelingen, \ldots Met welk eindresultaat kan je je bachelorproef als een succes beschouwen?
 
 %---------- Stand van zaken ---------------------------------------------------
 
 \section{Literatuurstudie}%
 \label{sec:literatuurstudie}
+\begin{tcolorbox}[
+  colback=probleemdomein,
+  colframe=probleemdomein,
+  boxrule=0pt,
+  sharp corners,
+  enhanced,
+  breakable
+]
+In deze literatuurstudie proberen we een antwoord te vinden op de volgende onderzoeksvragen binnen het probleemdomein:
+\begin{itemize}
+  \item Wat is de Cyber Resilience Act (CRA), en welke doelstellingen en verplichtingen bevat het?
+  \item Wat is CI/CD en waarom is dit belangrijk binnen DevOps?
+  \item Wat is de impact van CRA voor Excentis, welke producten worden getroffen en wat zien zij als verwachte output?
+\end{itemize}
+\end{tcolorbox}
+\begin{tcolorbox}[
+  colback=oplossingsdomein,
+  colframe=oplossingsdomein,
+  boxrule=0pt,
+  sharp corners,
+  enhanced,
+  breakable
+]
+Daarnaast worden ook de onderzoeksvragen uit het oplossingsdomein behandeld:
+\begin{itemize}
+  \item Hoe wordt een CI/CD-pipeline technisch opgebouwd binnen een DevOps-omgeving en welke voordelen biedt automatisatie voor beheer en beveiliging?
+  \item Hoe kunnen beveiligingscontroles en compliancevereisten uit de Cyber Resilience Act geïntegreerd en geautomatiseerd worden binnen CI/CD-pipelines, inclusief welke\\CRA-vereiste securitycontroles geautomatiseerd moeten worden en welke software bestaat om een SBOM te genereren?
+  \item Welke technische en organisatorische uitdagingen kunnen optreden bij het automatiseren van CRA-compliance in CI/CD-pipelines?
+\end{itemize}
+\end{tcolorbox}
+\subsection{Inleiding}
 
-Hier beschrijf je de \emph{state-of-the-art} rondom je gekozen onderzoeksdomein, d.w.z.\ een inleidende, doorlopende tekst over het onderzoeksdomein van je bachelorproef. Je steunt daarbij heel sterk op de professionele \emph{vakliteratuur}, en niet zozeer op populariserende teksten voor een breed publiek. Wat is de huidige stand van zaken in dit domein, en wat zijn nog eventuele open vragen (die misschien de aanleiding waren tot je onderzoeksvraag!)?
+Er is de voorbije jaren sterke evolutie geweest in onderzoek naar de automatisering van beveiligingstesten om gevaarlijke commits op te sporen en security-scans te integreren in het ontwikkelingsproces. Omdat de complexiteit van software steeds toeneemt en\\supply-chain-aanvallen groeien, richten steeds meer bedrijven zich op DevSecOps, waarbij beveiliging vanaf het begin in de CI/CD-pipeline wordt geïntegreerd \parencite{Takahashi2025}. Ondertussen verplicht de nieuwe Europese wetgeving, zoals de Cyber Resilience Act, fabrikanten van software- en hardwareproducten om hun producten duidelijk veilig en betrouwbaar te maken vóór deze op de markt komen \parencite{EU_CRA}. Deze literatuurstudie schetst de huidige stand van zaken rond CRA-compliance, beveiligingsautomatisering, SBOM-generatie en CVE-analyse, en toont welke problemen er vandaag nog bestaan.
 
-Je mag de titel van deze sectie ook aanpassen (literatuurstudie, stand van zaken, enz.). Zijn er al gelijkaardige onderzoeken gevoerd? Wat concluderen ze? Wat is het verschil met jouw onderzoek?
+De Cyber Resilience Act (CRA), die in 2024 in werking trad, is een Europese wetgeving die de cybersecurity van digitale producten verplicht stelt vóór deze op de markt komen \parencite{EU_CRA}. Het doel hiervan is het verbeteren van de digitale weerbaarheid van producten en het verkleinen van de risico’s door kwetsbaarheden in software en hardware op tijd te detecteren en mitigeren. Belangrijke verplichtingen van CRA bevatten onder andere: Security-by-design, Software Bill of Materials (SBOM), incidentrapportage en beveiligingsupdates en het uitrollen van patches.
 
-Verwijs bij elke introductie van een term of bewering over het domein naar de vakliteratuur, bijvoorbeeld~\autocite{Hykes2013}! Denk zeker goed na welke werken je refereert en waarom.
+De nieuwe wetgeving zorgt voor zowel kansen als uitdagingen voor organisaties. Langs de ene kant stimuleert het innovatie en meer cyberveiligheid waardoor ook de betrouwbaarheid van de producten verhoogt, maar langs de andere kant bestaat er ook onduidelijkheid over specifieke productcategoriën, interpretatie van vereisten en implementatietijdlijnen van 36 maanden \parencite{ECSO2024}.\\Deze wetgeving is dan ook cruciaal voor bedrijven zoals Excentis, aangezien dat de naleving bepaalt of het product in aanmerking komt voor een CE-certificering \parencite{EuropeanCommission2024CRAnews}.
 
-Draag zorg voor correcte literatuurverwijzingen! Een bronvermelding hoort thuis \emph{binnen} de zin waar je je op die bron baseert, dus niet er buiten! Maak meteen een verwijzing als je gebruik maakt van een bron. Doe dit dus \emph{niet} aan het einde van een lange paragraaf. Baseer nooit teveel aansluitende tekst op eenzelfde bron.
+\subsection{CI/CD en DevSecOps}
 
-Als je informatie over bronnen verzamelt in JabRef, zorg er dan voor dat alle nodige info aanwezig is om de bron terug te vinden (zoals uitvoerig besproken in de lessen Research Methods).
+Continuous Integration (CI) en Continuous Delivery/Deployment (CD) is een manier om software sneller en betrouwbaarder te ontwikkelen. Dit staat voor het continue en automatische integratie van code door developers en het continue leveren en/of deployen van deze code door een operations team \parencite{RedHat2025}.
+
+Er wordt binnen de CI/CD-omgeving steeds vaker DevSecOps toegepast, waarbij beveiliging vanaf het begin in de ontwikkelingscyclus wordt geïntegreerd \parencite{RamdassJain2025}. DevSecOps is een evolutie van de originele DevOps waar ook Security een centraal onderdeel wordt. Dit wil dus zeggen dat beveiligingstesten zoals Static Application Security Testing (SAST) en Dynamic Application Security Testing (DAST) automatisch uitgevoerd zullen worden in de CI/CD-pipeline \parencite{Singh2025, Patel2024}. Dankzij deze extra stap kunnen kwetsbaarheden opgespoord en opgelost worden voordat deze code in productie gebruikt zal worden. Dit vermindert dan ook de kans op ernstige beveiligingsincidenten waardoor het product direct beter voldoet aan CRA-vereisten.
+
+Ook maakt de automatisering binnen CI/CD-pipelines het mogelijk om beveiligingscontroles en compliance continu te monitoren. Dankzij tools die SBOMs genereren en CVE-scans uitvoeren ontstaat een end-to-end workflow die zowel kwaliteit als veiligheid van de software kan ondersteunen \parencite{OpenSSF2025SBOMCRA, Cheenepalli2025}. Voor organisaties zoals Excentis betekent dit dat CRA-compliance proactief kan worden afgedwongen, terwijl de ontwikkelsnelheid en productiviteit behouden blijven.
+
+\subsection{Open vragen}
+
+Uit recente literatuur blijkt dat er veel vooruitgang is in beveiligingsautomatisatie binnen CI/CD-omgevingen. Ondanks deze vooruitgang zijn er nog verschillende open vragen binnen het domein van CRA-compliance. Eén van de belangrijkste open vragen is dat er geen eenduidige richtlijn over hoe de CRA-vereisten technisch moeten worden vertaald binnen CI/CD-pipelines, zoals verplichte stappen, het type rapporten of validatieregels. Verschillende studies beschrijven wel de nood aan automatisering binnen DevSecOps \parencite{Singh2025,RamdassJain2025}, maar omdat de CRA zo recent is, bestaat er nog geen kant-en-klare oplossing.
+
+Ook tonen bestaande DevSecOps-publicaties aan dat beveiliging steeds vaker geautomatiseerd wordt in CI/CD-pipelines \parencite{Singh2025,RamdassJain2025}. Deze literatuur richt zich voornamelijk op algemene softwarebeveiliging en niet specifiek op CRA-naleving. Er is dus nog onvoldoende onderzocht welke tools en workflows het best geschikt zijn om CRA-compliance te ondersteunen.
+
+Tot slot is er ook veel onduidelijkheid over de operationele haalbaarheid. Organisaties willen voldoen aan de vereisten van CRA om zo een CE-label te behalen, wat vaak aanzienlijke tijd en middelen kost. Er is iemand nodig om dit te implementeren en opvolgen, en die persoon moet dan ook goed snappen hoe de CRA wetgeving in elkaar zit. Aangezien dat deze wetgeving splinternieuw is, is het ook moeilijk om iemand te vinden die zich hier in specialiseert.
+
+Samengevat toont deze state-of-the-art dat er veel vooruitgang geboekt is op het vlak van CI/CD-pipelines maar dat er wel nog een lange weg te gaan is, zeker omtrent de CRA-wetgeving.
+
 
 % Voor literatuurverwijzingen zijn er twee belangrijke commando's:
 % \autocite{KEY} => (Auteur, jaartal) Gebruik dit als de naam van de auteur
@@ -54,31 +90,36 @@ Als je informatie over bronnen verzamelt in JabRef, zorg er dan voor dat alle no
 %   functie heeft in de zin (bv. ``Uit onderzoek door Doll & Hill (1954) bleek
 %   ...'')
 
-Je mag deze sectie nog verder onderverdelen in subsecties als dit de structuur van de tekst kan verduidelijken.
 
 %---------- Methodologie ------------------------------------------------------
 \section{Methodologie}%
 \label{sec:methodologie}
 
-Hier beschrijf je hoe je van plan bent het onderzoek te voeren. Welke onderzoekstechniek ga je toepassen om elk van je onderzoeksvragen te beantwoorden? Gebruik je hiervoor literatuurstudie, interviews met belanghebbenden (bv.~voor requirements-analyse), experimenten, simulaties, vergelijkende studie, risico-analyse, PoC, \ldots?
+Het onderzoek van deze bachelorproef zal worden uitgevoerd in een technische en toegepaste context bij het bedrijf Excentis, met als focus het automatiseren van CRA-compliance aan de hand van CI/CD-pipelines. Dit onderzoek zal in verschillende fases verlopen, waarbij elke fase een duidelijk doel, resultaat alsook een deadline heeft. 
 
-Valt je onderwerp onder één van de typische soorten bachelorproeven die besproken zijn in de lessen Research Methods (bv.\ vergelijkende studie of risico-analyse)? Zorg er dan ook voor dat we duidelijk de verschillende stappen terug vinden die we verwachten in dit soort onderzoek!
+De eerste fase is de voorbereiding en requirementsfase. Hierbij wordt de huidige status van pipelines bij Excentis in kaart gebracht. Dit zal gebeuren aan de hand van gesprekken met de co-promotor en indien nodig andere relevante werknemers. In deze fase zal er vooral informatie verzameld worden over welke software Excentis gebruikt voor de pipelines (zoals GitHub Actions, Jenkins,…), en de securityvereisten vanuit de CRA-wetgeving en het bedrijf zelf. Het doel van deze fase is om op voorhand goed te weten waar er aan begonnen wordt. De deadline hiervoor is 20 februari. 
 
-Vermijd onderzoekstechnieken die geen objectieve, meetbare resultaten kunnen opleveren. Enquêtes, bijvoorbeeld, zijn voor een bachelorproef informatica meestal \textbf{niet geschikt}. De antwoorden zijn eerder meningen dan feiten en in de praktijk blijkt het ook bijzonder moeilijk om voldoende respondenten te vinden. Studenten die een enquête willen voeren, hebben meestal ook geen goede definitie van de populatie, waardoor ook niet kan aangetoond worden dat eventuele resultaten representatief zijn.
+De volgende fase is de literatuurstudie, dit zal tegelijkertijd lopen met alle andere fases aangezien dit begint bij de start van het onderzoek en pas eindigt op het einde van het onderzoek. In deze fase worden alle theoretische onderwerpen onderzocht, zoals de Cyber Resilience Act, best practices voor CI/CD-pipelines, geautomatiseerde securitytesten, SBOM-generatie en CVE-analyse. Het doel van deze fase is om alle theoretische onderwerpen die aan bod komen goed te begrijpen en uit te leggen. De deadline hiervoor is 4 mei. 
 
-Uit dit onderdeel moet duidelijk naar voor komen dat je bachelorproef ook technisch voldoen\-de diepgang zal bevatten. Het zou niet kloppen als een bachelorproef informatica ook door bv.\ een student marketing zou kunnen uitgevoerd worden.
+Hierna is de ontwerpfase. In deze fase zal de CI/CD-pipeline op basis van alle verzamelde informatie en kennis ontworpen worden. Hier zal een lijst met benodigde tools geselecteerd worden, zoals BurpSuite, Aikido, Snyk,... en de workflow van de pipeline zal ook hier gedefinieerd worden. Ook wordt er hier een shortlist aan extra securitytesten gemaakt die zullen uitgevoerd worden in de pipeline. Ook wordt er hier gekeken naar al bestaande opties voor SBOM-generatie en CVE-scans, en indien nodig ook een ontwerp om zelf een SBOM te genereren. Het doel is hier om een goede workflow te hebben van wat allemaal nog gedaan zal moeten worden tijdens de Proof of Concept fase. De deadline hiervoor is 6 maart. 
 
-Je beschrijft ook al welke tools (hardware, software, diensten, \ldots) je denkt hiervoor te gebruiken of te ontwikkelen.
+De voorlaatste fase is de Proof of Concept fase. Hier wordt de CI/CD-pipeline effectief gemaakt, grondig getest en op punt gesteld met voorbeeldcode. Hoe het in elkaar zal zitten zal afhangen van alle andere vorige fases. Afhankelijk van de requirements van Excentis zelf, de verwachtingen van de CRA, en de beste tools voor automatische testen, welke tools maken goede en makkelijke SBOM’s,… Het doel van deze fase is het ontwikkelen van een werkende pipeline die automatisch de code test op CRA-compliance. De deadline voor dit is ook 4 mei. 
 
-Probeer ook een tijdschatting te maken. Hoe lang zal je met elke fase van je onderzoek bezig zijn en wat zijn de concrete \emph{deliverables} in elke fase?
+De laatste fase is de conclusiefase. Hier gaat er vermeld worden of de Proof of Concept volledig uitgewerkt is kunnen worden, of alles gewerkt heeft en of Excentis dit een succes beschouwt. De deadline voor deze fase is nogmaals 4 mei en het doel hiervan is om te zien of deze bachelorproef tot een goed einde is gebracht.
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=.49\textwidth]{gantt_diagram.png}
+    \caption{Tijdslijn bachelorproef CRA-compliance via CI/CD-pijplijn.}
+    \label{fig:bp-tijdslijn}
+\end{figure}
 %---------- Verwachte resultaten ----------------------------------------------
 \section{Verwacht resultaat, conclusie}%
 \label{sec:verwachte_resultaten}
 
-Hier beschrijf je welke resultaten je verwacht. Als je metingen en simulaties uitvoert, kan je hier al mock-ups maken van de grafieken samen met de verwachte conclusies. Benoem zeker al je assen en de onderdelen van de grafiek die je gaat gebruiken. Dit zorgt ervoor dat je concreet weet welk soort data je moet verzamelen en hoe je die moet meten.
+Het verwachte resultaat van deze bachelorproef is een volledig werkende CI/CD-pipeline die alle nodige securitytesten uit de shortlist uitvoert en een SBOM maakt en deze vergelijkt met een CVE-database waardoor de code volledig CRA-compliant is. Dit zorgt ervoor dat bekende en onbekende kwetsbaarheden opgespoord kunnen worden en gerapporteerd worden aan het development team zodat zij deze zo snel mogelijk kunnen oplossen. Hierdoor kan Excentis sneller en efficiënter inspelen op security-risico’s en wordt de kans verhoogd dat hun software tijdig voldoet aan de vereisten van de Cyber Resilience Act, waardoor ze een CE-label kunnen verkrijgen.
 
-Wat heeft de doelgroep van je onderzoek aan het resultaat? Op welke manier zorgt jouw bachelorproef voor een meerwaarde?
+Deze bachelorproef biedt een meerwaarde voor zowel de development teams als het management team van Excentis. Voor de developers maakt het vinden van kwetsbaarheden eenvoudiger en sneller. Tegelijkertijd krijgt het management team inzicht in de algemene compliance-status van de softwareproducten.
 
-Hier beschrijf je wat je verwacht uit je onderzoek, met de motivatie waarom. Het is \textbf{niet} erg indien uit je onderzoek andere resultaten en conclusies vloeien dan dat je hier beschrijft: het is dan juist interessant om te onderzoeken waarom jouw hypothesen niet overeenkomen met de resultaten.
+Hoewel het doel is om een volledig werkende CI/CD-pipeline te hebben, kunnen er zich altijd problemen ontstaan. Bijvoorbeeld, bepaalde securitytools of SBOM-generators kunnen beperkingen hebben die de automatisatie voor een deel beïnvloeden. Mocht dit gebeuren, wordt er een duidelijke motivatie gegeven waarom de oorspronkelijke verwachtingen niet volledig overeenkomen met de gerealiseerde resultaten.
 
