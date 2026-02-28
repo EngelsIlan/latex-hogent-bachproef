@@ -15,7 +15,7 @@
 \section{Inleiding}%
 \label{sec:inleiding}
 
-Deze bachelorproef richt zich op het automatiseren van CRA-compliance aan de hand van\\CI/CD-pipelines binnen de softwareontwikkeling bij Excentis, een bedrijf dat netwerkhardware zoals de ByteBlower en XRA ontwikkelt en verkoopt. Door de invoering van de Europese Cyber Resilience Act (CRA) krijgen digitale producten striktere cybersecurity verplichtingen \parencite{EU_CRA}. Hierdoor moet software tegen december 2027 voldoen aan de vereisten van de CRA wetgeving om een CE-label te verkrijgen \parencite{EuropeanCommission2024CRAnews}. \begin{tcolorbox}[colback=probkleur, colframe=probkleur, boxrule=0pt, sharp corners, enhanced, breakable]Dit betekent dat de software die door Excentis wordt ontwikkeld conform moet zijn met deze wetgeving. Dit is dus een grote uitdaging voor zowel development teams als management teams. Volgens \textcite{Robyn2025} verwachten de klanten dat Excentis hier ook expliciet mee aan de slag gaat, waardoor het probleem een concrete en bedrijfsrelevante casus vormt. Dit verzekert niet alleen CRA-compliance, maar het ondersteunt ook het klantenvertrouwen, waardoor de producten veilig en op tijd op de markt kunnen worden gebracht.\end{tcolorbox}
+Deze bachelorproef richt zich op het automatiseren van CRA-compliance aan de hand van\\CI/CD-pipelines binnen de softwareontwikkeling bij Excentis, een bedrijf dat netwerkhardware zoals de ByteBlower en XRA ontwikkelt en verkoopt. Door de invoering van de Europese Cyber Resilience Act (CRA) krijgen digitale producten striktere cybersecurity verplichtingen \parencite{EU_CRA}. Hierdoor moet software tegen december 2027 voldoen aan de vereisten van de CRA wetgeving om een CE-label te verkrijgen \parencite{EuropeanCommission2024CRAnews}. Dit betekent dat de software die door Excentis wordt ontwikkeld conform moet zijn met deze wetgeving. Dit is dus een grote uitdaging voor zowel development teams als management teams. Volgens \textcite{Robyn2025} verwachten de klanten dat Excentis hier ook expliciet mee aan de slag gaat, waardoor het probleem een concrete en bedrijfsrelevante casus vormt. Dit verzekert niet alleen CRA-compliance, maar het ondersteunt ook het klantenvertrouwen, waardoor de producten veilig en op tijd op de markt kunnen worden gebracht.
 
 Het doel van de bachelorproef is het ontwerpen en implementeren van een volledige CI/CD-pipeline die automatisch de CRA-compliance van de software controleert. Hierdoor zal het onderzoek ook een concrete oplossing bieden voor de specifieke probleemsituatie van Excentis, namelijk het waarborgen van veilige en CRA-compliant software, binnen de gestelde deadlines van de CRA. De gemaakte pipeline zal dienen als een Proof of Concept en laat Excentis toe om kwetsbaarheden te vinden, een Software Bill of Materials (SBOM) te genereren en hiertegen CVE-scans uit te voeren, waarbij er automatisch een rapportage plaatsvindt naar de betrokken development en management teams. 
 
@@ -26,36 +26,22 @@ De centrale onderzoeksvraag is dan ook: Hoe kan een CI/CD-pipeline geautomatisee
 
 \section{Literatuurstudie}%
 \label{sec:literatuurstudie}
-\begin{tcolorbox}[
-  colback=probleemdomein,
-  colframe=probleemdomein,
-  boxrule=0pt,
-  sharp corners,
-  enhanced,
-  breakable
-]
+
 In deze literatuurstudie proberen we een antwoord te vinden op de volgende onderzoeksvragen binnen het probleemdomein:
 \begin{itemize}
   \item Wat is de Cyber Resilience Act (CRA), en welke doelstellingen en verplichtingen bevat het?
   \item Wat is CI/CD en waarom is dit belangrijk binnen DevOps?
   \item Wat is de impact van CRA voor Excentis, welke producten worden getroffen en wat zien zij als verwachte output?
 \end{itemize}
-\end{tcolorbox}
-\begin{tcolorbox}[
-  colback=oplossingsdomein,
-  colframe=oplossingsdomein,
-  boxrule=0pt,
-  sharp corners,
-  enhanced,
-  breakable
-]
+
+
 Daarnaast worden ook de onderzoeksvragen uit het oplossingsdomein behandeld:
 \begin{itemize}
   \item Hoe wordt een CI/CD-pipeline technisch opgebouwd binnen een DevOps-omgeving en welke voordelen biedt automatisatie voor beheer en beveiliging?
   \item Hoe kunnen beveiligingscontroles en compliancevereisten uit de Cyber Resilience Act geïntegreerd en geautomatiseerd worden binnen CI/CD-pipelines, inclusief welke\\CRA-vereiste securitycontroles geautomatiseerd moeten worden en welke software bestaat om een SBOM te genereren?
   \item Welke technische en organisatorische uitdagingen kunnen optreden bij het automatiseren van CRA-compliance in CI/CD-pipelines?
 \end{itemize}
-\end{tcolorbox}
+
 \subsection{Inleiding}
 
 Er is de voorbije jaren sterke evolutie geweest in onderzoek naar de automatisering van beveiligingstesten om gevaarlijke commits op te sporen en security-scans te integreren in het ontwikkelingsproces. Omdat de complexiteit van software steeds toeneemt en\\supply-chain-aanvallen groeien, richten steeds meer bedrijven zich op DevSecOps, waarbij beveiliging vanaf het begin in de CI/CD-pipeline wordt geïntegreerd \parencite{Takahashi2025}. Ondertussen verplicht de nieuwe Europese wetgeving, zoals de Cyber Resilience Act, fabrikanten van software- en hardwareproducten om hun producten duidelijk veilig en betrouwbaar te maken vóór deze op de markt komen \parencite{EU_CRA}. Deze literatuurstudie schetst de huidige stand van zaken rond CRA-compliance, beveiligingsautomatisering, SBOM-generatie en CVE-analyse, en toont welke problemen er vandaag nog bestaan.

@@ -26,5 +26,35 @@
 %% Maak voor elke fase (behalve het literatuuronderzoek) een NIEUW HOOFDSTUK aan
 %% en geef het een gepaste titel.
 
-\lipsum[21-25]
 
+\chapter{\IfLanguageName{dutch}{Methodologie}{Methodology}}%
+\label{ch:methodologie}
+
+Het onderzoek van deze bachelorproef zal worden uitgevoerd in een technische en toegepaste context bij het bedrijf Excentis, met als focus het automatiseren van CRA-compliance aan de hand van CI/CD-pipelines. Dit onderzoek zal in verschillende fases verlopen, waarbij elke fase een duidelijk doel, resultaat alsook een deadline heeft.
+
+\textbf{Voorberedings- en requirementsfase (deadline: 20 februari)}
+
+De eerste fase is de voorbereiding en requirementsfase. Hierbij wordt de huidige status van pipelines bij Excentis in kaart gebracht. Dit zal gebeuren aan de hand van gesprekken met de co-promotor en indien nodig andere relevante werknemers. In deze fase zal er vooral informatie verzameld worden over welke software Excentis gebruikt voor de pipelines (zoals GitHub Actions, Jenkins,…), en de securityvereisten vanuit de CRA-wetgeving en het bedrijf zelf. Het doel van deze fase is om op voorhand goed te weten waar er aan begonnen wordt.
+
+\textbf{Literatuurstudie (doorlopend tot 4 mei)}
+
+De volgende fase is de literatuurstudie, dit zal tegelijkertijd lopen met alle andere fases aangezien dit begint bij de start van het onderzoek en pas eindigt op het einde van het onderzoek. In deze fase worden alle theoretische onderwerpen onderzocht, zoals de Cyber Resilience Act, best practices voor CI/CD-pipelines, geautomatiseerde securitytesten, SBOM-generatie en CVE-analyse. Het doel van deze fase is om alle theoretische onderwerpen die aan bod komen goed te begrijpen en uit te leggen.
+
+\textbf{Ontwerpfase (deadline: 6 maart)}
+
+Hierna is de ontwerpfase. In deze fase zal de CI/CD-pipeline op basis van alle verzamelde informatie en kennis ontworpen worden. Hier zal een lijst met benodigde tools geselecteerd worden, zoals BurpSuite, Aikido, Snyk,... en de workflow van de pipeline zal ook hier gedefinieerd worden. In deze fase wordt een shortlist van extra securitytesten gemaakt die zullen uitgevoerd worden in de pipeline. Daarnaast wordt gekeken naar al bestaande opties voor SBOM-generatie en CVE-scans, en indien nodig ook een ontwerp om zelf een SBOM te genereren. Het doel is hier om een goede workflow te hebben van wat allemaal nog gedaan zal moeten worden tijdens de Proof of Concept fase.
+
+\textbf{Proof of Concept-fase (deadline: 4 mei)}
+
+De voorlaatste fase is de Proof of Concept fase. Hier wordt de CI/CD-pipeline effectief gemaakt, grondig getest en op punt gesteld met voorbeeldcode. Hoe de pipeline uiteindelijk wordt opgebouwd, hangt af van de resultaten en beslissingen uit vorige fases. Afhankelijk van de requirements van Excentis, de verwachtingen vanuit de CRA en de beste tools voor automatische testen, worden de meest geschikte oplossingen geselecteerd, zoals tools die op een gebruiksvriendelijke manier een SBOM kunnen genereren en CVE-scans ondersteunen. Het doel van deze fase is het ontwikkelen van een werkende pipeline die automatisch de code test op CRA-compliance.
+
+\textbf{Conclusiefase (deadline: 4 mei)}
+
+De laatste fase is de conclusiefase. Hier gaat er vermeld worden of de Proof of Concept volledig uitgewerkt is kunnen worden, of alles gewerkt heeft en of Excentis dit een succes beschouwt. De deadline voor deze fase is nogmaals 4 mei en het doel hiervan is om te zien of deze bachelorproef tot een goed einde is gebracht.
+
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[width=.49\textwidth]{gantt_diagram.png}
+%     \caption{Tijdslijn bachelorproef CRA-compliance via CI/CD-pijplijn.}
+%     \label{fig:bp-tijdslijn}
+% \end{figure}

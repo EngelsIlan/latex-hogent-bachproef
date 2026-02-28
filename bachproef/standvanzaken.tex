@@ -6,6 +6,53 @@
 % bijzonder aan wat de link is met het vorige en volgende hoofdstuk.
 
 % Pas na deze inleidende paragraaf komt de eerste sectiehoofding.
+In dit hoofdstuk wordt de huidige stand van zaken rond de Cyber Resilience Act en geautomatiseerde CRA-compliance in een CI/CD-context besproken. Daarbij wordt eerst het wettelijk kader geschetst, om vervolgens in te gaan op bestaande praktijken en tools rond DevSecOps, security testing, SBOM-generatie en automatisch kwetsbaarheidsbeheer in pipelines. Het doel van dit hoofdstuk is om voldoende theoretische en technische achtergrond te bieden zodat de lezer de uitwerking van de proof-of-concept in de volgende hoofdstukken goed kan situeren.
+
+\section{Inleiding}
+
+Er is de voorbije jaren een sterke evolutie geweest in onderzoek naar de automatisering van beveiligingstesten om gevaarlijke commits op te sporen en security-scans te integreren in het ontwikkelingsproces.\autocite{Takahashi2025} Omdat de complexiteit van software steeds toeneemt en supply-chain-aanvallen groeien, richten steeds meer bedrijven zich op DevSecOps, waarbij beveiliging vanaf het begin in de CI/CD-pipeline wordt geïntegreerd.\autocite{Takahashi2025} Ondertussen verplicht nieuwe Europese wetgeving, zoals de Cyber Resilience Act, fabrikanten van software- en hardwareproducten om hun producten duidelijk veilig en betrouwbaar te maken vóór deze op de markt komen.\autocite{EU_CRA} 
+
+Deze literatuurstudie schetst de huidige stand van zaken rond CRA-compliance, beveiligingsautomatisering, SBOM-generatie en CVE-analyse, en toont welke problemen er vandaag nog bestaan.
+
+\section{Cyber Resilience Act}
+
+De Cyber Resilience Act (CRA), die op 10 december 2024 in werking trad, is een Europese wetgeving die de cybersecurity van digitale producten verplicht stelt vóór deze op de markt komen \autocite{EU_CRA}. Het doel hiervan is het verbeteren van de digitale weerbaarheid van producten en het verkleinen van de risico's door kwetsbaarheden in software en hardware op tijd te detecteren en mitigeren. 
+
+De CRA legt strikte eisen op doorheen de volledige levenscyclus: security-by-design (risicoanalyse en secure development lifecycle), Software Bill of Materials (SBOM) voor transparantie van componenten, vulnerability management (CVE-scans en mitigatie), incidentrapportage binnen 24 uur bij ernstige kwetsbaarheden en verplichte beveiligingsupdates gedurende minstens 5 jaar \autocite{EU_CRA}. De implementatietijdslijn verloopt gefaseerd: meldplicht voor ernstige kwetsbaarheden start op 11 september 2026, volledige toepassing van alle eisen inclusief CE-certificering vanaf 11 december 2027 \autocite{RDI2024CRA}.
+
+De nieuwe wetgeving zorgt voor zowel kansen als uitdagingen voor organisaties. Langs de ene kant stimuleert het innovatie en meer cyberveiligheid waardoor ook de betrouwbaarheid van de producten verhoogt, maar langs de andere kant bestaat er ook onduidelijkheid over specifieke productcategorieën, interpretatie van vereisten en implementatietijdlijnen van 36 maanden \autocite{ECSO2024}. Deze wetgeving is dan ook cruciaal voor bedrijven zoals Excentis, omdat naleving bepaalt of een product in aanmerking komt voor een CE-certificering \autocite{EuropeanCommission2024CRAnews}.
+
+\section{CRA-Specifieke vereisten voor CI/CD}
+
+De CRA verplicht geen gebruik van CI/CD-pipelines of automatisering, maar legt wel strikte cybersecurity-eisen op vóór marktintroductie. Deze moeten manueel of geautomatiseerd worden nageleefd, wat tijd, mankracht en dus kosten met zich meebrengt \autocite{Claranet2025}.
+
+\section{CI/CD en DevSecOps}
+
+\subsection{CI/CD fundamenten}
+Continuous Integration (CI) en Continuous Delivery/Deployment (CD) is een manier om software sneller en betrouwbaarder te ontwikkelen. Dit staat voor de continue en automatische integratie van code door developers en het continue leveren en/of deployen van deze code door een operations team \autocite{RedHat2025}.
+
+Er wordt binnen de CI/CD-omgeving steeds vaker DevSecOps toegepast, waarbij beveiliging vanaf het begin in de ontwikkelingscyclus wordt geïntegreerd \autocite{RamdassJain2025}. DevSecOps is een evolutie van de originele DevOps waar ook Security een centraal onderdeel wordt.
+
+\subsection{DevSecOps principes}
+DevSecOps rust op vijf kernprincipes die beveiliging integreren in de gehele softwareontwikkelingslevenscyclus \autocite{RamdassJain2025}:
+
+\begin{itemize}
+\item \textbf{Shift-left security}: Beveiliging wordt al geïmplementeerd in de vroegste ontwikkelfasen (IDE, eerste CI-stap) in plaats van pas aan het einde.
+\item \textbf{Automatisering van security controls}: Alle securitytesten (SAST/DAST/SCA) worden volledig geautomatiseerd in de CI/CD-pipeline.
+\item \textbf{Policy-as-code}: Securityregels worden als code gedefinieerd (OPA, Sentinel) en automatisch afgedwongen bij elke commit.
+\item \textbf{Samenwerking Dev/Sec/Ops}: Ontwikkelaars, security en operations delen verantwoordelijkheid en werken met dezelfde tools.
+\item \textbf{Continue monitoring}: Real-time dreigingsdetectie en vulnerability scanning blijven doorwerken na deployment.
+\end{itemize}
+
+Deze principes zorgen ervoor dat beveiliging geen bottleneck vormt maar een geïntegreerd onderdeel wordt van snelle softwareontwikkeling.
+
+\subsection{Security testing in pipelines}
+
+In een DevSecOps-context worden verschillende soorten securitytesten geïntegreerd in de CI/CD-pipeline, zodat kwetsbaarheden zo vroeg mogelijk worden opgespoord\autocite{RamdassJain2025}. Daarbij wordt vaak een combinatie gebruikt van Static Application Security Testing (SAST), Dynamic Application Security Testing (DAST) en Software Composition Analysis (SCA), die automatisch draaien bij elke build of pull request\autocite{AWS2021}. Dit vermindert de kans dat kwetsbaarheden onopgemerkt in productie kunnen terechtkomen en helpt om sneller te reageren op nieuwe dreigingen\autocite{Snyk2026}.
+
+De OWASP Top 10 fungeert hierbij vaak als referentiekader om te bepalen welke soorten kwetsbaarheden minstens automatisch afgedekt moeten worden. Voor deze bachelorproef kan een shortlist van relevante categorieën worden opgesteld, zoals injectie, broken access control en kwetsbaarheden in afhankelijkheden, die door de pipeline automatisch getest worden. Tools zoals SAST-scanners voor broncode, DAST-scanners voor runtime-testing en dependency-scanners voor bibliotheken kunnen als aparte stappen in de pipeline worden geïntegreerd, waarbij de build wordt geblokkeerd als ernstige kwetsbaarheden worden gevonden.
+
+
 
 Dit hoofdstuk bevat je literatuurstudie. De inhoud gaat verder op de inleiding, maar zal het onderwerp van de bachelorproef *diepgaand* uitspitten. De bedoeling is dat de lezer na lezing van dit hoofdstuk helemaal op de hoogte is van de huidige stand van zaken (state-of-the-art) in het onderzoeksdomein. Iemand die niet vertrouwd is met het onderwerp, weet nu voldoende om de rest van het verhaal te kunnen volgen, zonder dat die er nog andere informatie moet over opzoeken \autocite{Pollefliet2011}.
 

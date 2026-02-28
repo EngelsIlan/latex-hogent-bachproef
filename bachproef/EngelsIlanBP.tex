@@ -18,10 +18,10 @@
 
 %% For source code highlighting, requires pygments to be installed
 %% Compile with the -shell-escape flag!
-%% \usepackage[chapter]{minted}
+\usepackage[chapter]{minted}
 %% If you compile with the make_thesis.{bat,sh} script, use the following
 %% import instead:
-\usepackage[chapter,outputdir=../output]{minted}
+%%\usepackage[chapter,outputdir=../output]{minted}
 \usemintedstyle{solarized-light}
 
 %% Formatting for minted environments.
@@ -49,11 +49,11 @@
 
 %%---------- Document metadata -------------------------------------------------
 % TODO: Replace this with your own information
-\author{Ernst Aarden}
-\supervisor{Dhr. F. Van Houte}
-\cosupervisor{Mevr. S. Beeckman}
+\author{Engels Ilan}
+\supervisor{Dhr. P. Maenhaut}
+\cosupervisor{Dhr. M. Robyn}
 \title[Optionele ondertitel]%
-    {Titel van de bachelorproef}
+    {Cybersecurity-automatisatie in CI/CD-pipelines voor CRA-compliance}
 \academicyear{\advance\year by -1 \the\year--\advance\year by 1 \the\year}
 \examperiod{1}
 \degreesought{\IfLanguageName{dutch}{Professionele bachelor in de toegepaste informatica}{Bachelor of applied computer science}}
@@ -131,6 +131,15 @@
 % te verspreiden!
 
 \input{inleiding}
+
+
+Deze bachelorproef richt zich op het automatiseren van CRA-compliance aan de hand van\\CI/CD-pipelines binnen de softwareontwikkeling bij Excentis. Door de invoering van de Europese Cyber Resilience Act (CRA) krijgen digitale producten striktere cybersecurity verplichtingen \parencite{EU_CRA}. Hierdoor moet software tegen december 2027 voldoen aan de vereisten van de CRA wetgeving om een CE-label te verkrijgen \parencite{EuropeanCommission2024CRAnews}. Dit betekent dat de software die door Excentis wordt ontwikkeld conform aan deze wetgeving moet zijn. Daardoor vormt de nieuwe regelgeving een grote uitdaging voor zowel development teams als management teams. Volgens \textcite{Robyn2025} verwachten de klanten dat Excentis hier ook expliciet mee aan de slag gaat, waardoor het probleem een concrete en bedrijfsrelevante casus vormt. Zo wordt niet alleen CRA-compliance verzekerd, maar het ondersteunt ook het klantenvertrouwen, waardoor de producten veilig en op tijd op de markt kunnen worden gebracht.
+
+Het doel van deze bachelorproef is het ontwerpen en implementeren van een volledige CI/CD-pipeline die automatisch de CRA-compliance van de software controleert. Hierdoor zal het onderzoek ook een concrete oplossing bieden voor de specifieke probleemsituatie van Excentis, namelijk het waarborgen van veilige en CRA-compliant software, binnen de gestelde deadlines van de CRA. De gemaakte pipeline zal dienen als een Proof of Concept en laat Excentis toe om kwetsbaarheden te vinden, een Software Bill of Materials (SBOM) te genereren en hiertegen CVE-scans uit te voeren, waarbij er automatisch een rapportage plaatsvindt naar de betrokken development en management teams. 
+
+De centrale onderzoeksvraag is dan ook: Hoe kan een CI/CD-pipeline geautomatiseerd worden om CRA-compliant te zijn? Het verwachte eindresultaat van deze bachelorproef is dan ook een werkende CI/CD-pipeline die voldoet aan de vereisten van Excentis. Aangezien dit onderzoek expliciet gericht is op Excentis en hun interne teams, is deze oplossing goed afgebakend en direct toepasbaar binnen de bedrijfscontext.
+Om deze centrale onderzoeksvraag te beantwoorden, worden er verschillende deelvragen onderzocht binnen zowel het probleemdomein als het oplossingsdomein. Deze deelvragen worden verder uitgewerkt in de literatuurstudie (zie Sectie \ref{sec:standvanzaken}).
+
 \input{standvanzaken}
 \input{methodologie}
 

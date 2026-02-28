@@ -5,32 +5,42 @@
 \chapter{\IfLanguageName{dutch}{Inleiding}{Introduction}}%
 \label{ch:inleiding}
 
-De inleiding moet de lezer net genoeg informatie verschaffen om het onderwerp te begrijpen en in te zien waarom de onderzoeksvraag de moeite waard is om te onderzoeken. In de inleiding ga je literatuurverwijzingen beperken, zodat de tekst vlot leesbaar blijft. Je kan de inleiding verder onderverdelen in secties als dit de tekst verduidelijkt. Zaken die aan bod kunnen komen in de inleiding~\autocite{Pollefliet2011}:
-
-\begin{itemize}
-  \item context, achtergrond
-  \item afbakenen van het onderwerp
-  \item verantwoording van het onderwerp, methodologie
-  \item probleemstelling
-  \item onderzoeksdoelstelling
-  \item onderzoeksvraag
-  \item \ldots
-\end{itemize}
+Deze bachelorproef richt zich op het automatiseren van CRA-compliance aan de hand van\\CI/CD-pipelines binnen de softwareontwikkeling bij Excentis. Door de invoering van de Europese Cyber Resilience Act (CRA) krijgen digitale producten striktere cybersecurityverplichtingen \parencite{EU_CRA}. Hierdoor moet software tegen december 2027 voldoen aan de vereisten van de CRA-wetgeving om een CE-label te verkrijgen \parencite{EuropeanCommission2024CRAnews}. Dit betekent dat de software die door Excentis wordt ontwikkeld conform aan deze wetgeving moet zijn. Daardoor vormt de nieuwe regelgeving een grote uitdaging voor zowel development teams als management teams. Volgens \textcite{Robyn2025} verwachten de klanten dat Excentis hier ook expliciet mee aan de slag gaat, waardoor het probleem een concrete en bedrijfsrelevante casus vormt. Zo wordt niet alleen CRA-compliance verzekerd, maar dit ondersteunt ook het klantenvertrouwen, waardoor de producten veilig en op tijd op de markt kunnen worden gebracht.
+Het doel van deze bachelorproef is het ontwerpen en implementeren van een volledige CI/CD-pipeline die automatisch de CRA-compliance van de software controleert. Hierdoor zal het onderzoek ook een concrete oplossing bieden voor de specifieke probleemsituatie van Excentis, namelijk het waarborgen van veilige en CRA-compliant software, binnen de gestelde deadlines van de CRA. De gemaakte pipeline zal dienen als een Proof of Concept en laat Excentis toe om kwetsbaarheden te vinden, een Software Bill of Materials (SBOM) te genereren en hiertegen CVE-scans uit te voeren, waarbij er automatisch een rapportage plaatsvindt naar de betrokken development en management teams. 
 
 \section{\IfLanguageName{dutch}{Probleemstelling}{Problem Statement}}%
 \label{sec:probleemstelling}
 
-Uit je probleemstelling moet duidelijk zijn dat je onderzoek een meerwaarde heeft voor een concrete doelgroep. De doelgroep moet goed gedefinieerd en afgelijnd zijn. Doelgroepen als ``bedrijven,'' ``KMO's'', systeembeheerders, enz.~zijn nog te vaag. Als je een lijstje kan maken van de personen/organisaties die een meerwaarde zullen vinden in deze bachelorproef (dit is eigenlijk je steekproefkader), dan is dat een indicatie dat de doelgroep goed gedefinieerd is. Dit kan een enkel bedrijf zijn of zelfs één persoon (je co-promotor/opdrachtgever).
-
+De Cyber Resilience Act (CRA) verplicht producenten van digitale producten om hun software en hardware aantoonbaar veilig en betrouwbaar te maken vóór deze op de markt komen. Voor Excentis, dat software ontwikkelt, betekent dit dat elke update nog steeds aan de relevante CRA-vereisten voldoet. Dit vormt een grote uitdaging, omdat handmatige controles op beveiliging en compliance veel tijd en gespecialiseerde expertise vragen en daardoor moeilijk schaalbaar zijn. De bachelorproef richt zich daarom expliciet op Excentis als doelgroep en heeft tot doel een oplossing uit te werken die direct inzetbaar is binnen hun ontwikkelcontext.
 \section{\IfLanguageName{dutch}{Onderzoeksvraag}{Research question}}%
 \label{sec:onderzoeksvraag}
 
-Wees zo concreet mogelijk bij het formuleren van je onderzoeksvraag. Een onderzoeksvraag is trouwens iets waar nog niemand op dit moment een antwoord heeft (voor zover je kan nagaan). Het opzoeken van bestaande informatie (bv. ``welke tools bestaan er voor deze toepassing?'') is dus geen onderzoeksvraag. Je kan de onderzoeksvraag verder specifiëren in deelvragen. Bv.~als je onderzoek gaat over performantiemetingen, dan 
+De centrale onderzoeksvraag is dan ook: 
+
+Hoe kan een CI/CD-pipeline geautomatiseerd worden om CRA-compliant te zijn? 
+Om deze onderzoeksvraag te beantwoorden, worden er verschillende deelvragen onderzocht binnen zowel het probleemdomein als het oplossingsdomein. Deelvragen in het probleemdomein zijn:
+\begin{itemize}
+  \item Wat is de Cyber Resilience Act (CRA), en welke doelstellingen en verplichtingen bevat het?
+  \item Wat is CI/CD en waarom is dit belangrijk binnen DevOps?
+  \item Wat is de impact van CRA voor Excentis, welke producten worden getroffen en wat zien zij als gewenste output?
+\end{itemize}
+Daarnaast worden ook de onderzoeksvragen uit het oplossingsdomein behandeld:
+\begin{itemize}
+  \item Hoe wordt een CI/CD-pipeline technisch opgebouwd binnen een DevOps-omgeving en welke voordelen biedt automatisatie voor beheer en beveiliging?
+  \item Hoe kunnen beveiligingscontroles en compliancevereisten uit de Cyber Resilience Act geïntegreerd en geautomatiseerd worden binnen CI/CD-pipelines, welke CRA-vereiste securitycontroles daarbij geautomatiseerd moeten worden, en welke software hiervoor beschikbaar is, om bijvoorbeeld een SBOM te genereren?
+  \item Welke technische en organisatorische uitdagingen kunnen optreden bij het automatiseren van CRA-compliance in CI/CD-pipelines?
+\end{itemize}
 
 \section{\IfLanguageName{dutch}{Onderzoeksdoelstelling}{Research objective}}%
 \label{sec:onderzoeksdoelstelling}
 
-Wat is het beoogde resultaat van je bachelorproef? Wat zijn de criteria voor succes? Beschrijf die zo concreet mogelijk. Gaat het bv.\ om een proof-of-concept, een prototype, een verslag met aanbevelingen, een vergelijkende studie, enz.
+De onderzoeksdoelstelling van deze bachelorproef is het ontwikkelen van een Proof of Concept van een CI/CD-pipeline die niet CRA-compliant software automatisch kan detecteren. Concreet moet de pipeline:
+\begin{itemize}
+  \item Automatisch de geselecteerde securitytesten uit een vooraf bepaalde shortlist uitvoeren
+  \item Een SBOM genereren en deze vergelijken met een CVE-database
+  \item De gevonden kwetsbaarheden en compliance-risico's rapporteren aan de betrokken development- en managementteams
+\end{itemize}
+De Proof of Concept wordt als geslaagd beschouwd wanneer de pipeline deze functionaliteiten correct en betrouwbaar uitvoert op representatieve voorbeeldprojecten en door Excentis als voldoende bruikbaar en uitbreidbaar wordt beoordeeld.
 
 \section{\IfLanguageName{dutch}{Opzet van deze bachelorproef}{Structure of this bachelor thesis}}%
 \label{sec:opzet-bachelorproef}
