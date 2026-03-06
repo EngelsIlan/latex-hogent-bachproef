@@ -48,11 +48,124 @@ Deze principes zorgen ervoor dat beveiliging geen bottleneck vormt maar een geï
 
 \subsection{Security testing in pipelines}
 
-In een DevSecOps-context worden verschillende soorten securitytesten geïntegreerd in de CI/CD-pipeline, zodat kwetsbaarheden zo vroeg mogelijk worden opgespoord\autocite{RamdassJain2025}. Daarbij wordt vaak een combinatie gebruikt van Static Application Security Testing (SAST), Dynamic Application Security Testing (DAST) en Software Composition Analysis (SCA), die automatisch draaien bij elke build of pull request\autocite{AWS2021}. Dit vermindert de kans dat kwetsbaarheden onopgemerkt in productie kunnen terechtkomen en helpt om sneller te reageren op nieuwe dreigingen\autocite{Snyk2026}.
+In een DevSecOps-context worden verschillende soorten securitytesten geïntegreerd in de CI/CD-pipeline, zodat kwetsbaarheden zo vroeg mogelijk worden opgespoord \autocite{RamdassJain2025}. Daarbij wordt vaak een combinatie gebruikt van Static Application Security Testing (SAST), Dynamic Application Security Testing (DAST) en Software Composition Analysis (SCA), die automatisch draaien bij elke build of pull request \autocite{AWS2021}. Dit vermindert de kans dat kwetsbaarheden onopgemerkt in productie kunnen terechtkomen en helpt om sneller te reageren op nieuwe dreigingen \autocite{Snyk2026}.
 
 De OWASP Top 10 fungeert hierbij vaak als referentiekader om te bepalen welke soorten kwetsbaarheden minstens automatisch afgedekt moeten worden. Voor deze bachelorproef kan een shortlist van relevante categorieën worden opgesteld, zoals injectie, broken access control en kwetsbaarheden in afhankelijkheden, die door de pipeline automatisch getest worden. Tools zoals SAST-scanners voor broncode, DAST-scanners voor runtime-testing en dependency-scanners voor bibliotheken kunnen als aparte stappen in de pipeline worden geïntegreerd, waarbij de build wordt geblokkeerd als ernstige kwetsbaarheden worden gevonden.
 
+\section{Software Bill of Materials}
+\subsection{Wat is een Software Bill of Materials?}
 
+Een Software Bill of Materials (SBOM) is een gestructureerde lijst van alle softwarecomponenten waaruit een applicatie of systeem is opgebouwd. Dit bevat typische velden zoals naam van het component, leverancier, versie, dependencies en metadata \autocite{IEEE2025}. Dit zorgt ervoor dat een organisatie beter zicht kan krijgen op hun software supply chain en sneller kwetsbaarheden en licentieproblemen kunnen identificeren \autocite{Stalnaker2024}.
+
+SBOM-informatie wordt vastgelegd in gestandaardiseerde formaten zodat ze zowel door mensen als door tools verwerkt kan worden. De meest gebruikte hiervan zijn SPDX (Software Package Data Exchange) en CycloneDX \autocite{Stalnaker2024}. SPDX richt zich vooral op licenties, provenance en relaties tussen componenten en wordt onder andere aanbevolen in sectoren met strikte compliance eisen \autocite{Stalnaker2024}. CycloneDX is dan een lichter SBOM-formaat dat specifiek ontworpen is voor application security en supply-chain-risk-analyse, met ingebouwde ondersteuningen voor security- en kwetsbaarheidscontext \autocite{Stalnaker2024}.
+
+\subsection{SBOM Generatie-tools}
+
+SBOMs worden gegenereerd door tools die software dependencies analyseren tijdens de build-fase van CI/CD pipelines. \textcite{Mirakhorli2024} evalueerden 84 SBOM tools en identificeerden de top-performers op basis van taal/ecosysteem ondersteuning.
+
+\begin{table}[H]
+  \centering
+  \caption{Top SBOM Generatie-tools (Mirakhorli et al., 2024)}
+  \begin{tabular}{|l|l|c|}
+  \hline
+  \textbf{Tool} & \textbf{Vendor} & \textbf{Talen/Ecosysteem} \\
+  \hline
+  CycloneDX Generator & CycloneDX & 14 \\
+  Syft & Anchore & 14 \\
+  Trivy & Aqua Security & 12 \\
+  OSS Review Toolkit & ORT & 10 \\
+  SPDX SBOM Generator & Independent & 9 \\
+  \hline
+  \end{tabular}
+  \label{tab:sbom-tools}
+\end{table}
+
+Deze tools ondersteuenen meerdere programmeertalen en package managers (Maven, npm, pip, etc.) en exporteren naar zowel SPDX als CycloneDX formaten \autocite{Mirakhorli2024}. 
+
+Voor deze bachelorproef zal één van deze tools worden geselecteerd voor SBOM-generatie in de CI/CD pipeline.
+
+\subsection{CRA-specifieke SBOM-vereisten}
+
+De Cyber Resilience Act verplicht fabrikanten van producten met digitale elementen om een machine-leesbare SBOM te produceren, met minstens de top-level dependencies \autocite{EU_CRA}.
+
+Dit moet dan ook voldoen aan volgende minimumeisen (BSI TR-03183-2):
+\begin{table}[H]
+  \centering
+  \caption{BSI TR-03183-2: Vereiste SBOM data fields \autocite{BSI2025}}
+  \begin{tabular}{|p{3cm}|p{8cm}|}
+    \hline
+    \textbf{Data field} & \textbf{Description} \\
+    \hline
+    Component creator & Email of URL van creator/maintainer \\
+    Component name & Naam door creator toegewezen \\
+    Component version & SemVer/CalVer of file modification date \\
+    Filename & Exacte bestandsnaam (geen pad) \\
+    Dependencies & Alle directe afhankelijkheden \\
+    Distribution licences & Licentie(s) voor gebruik \\
+    Hash value & SHA-512 van deployable component \\
+    Executable property & executable/non-executable \\
+    Archive property & archive/no archive \\
+    Structured property & structured/unstructured \\
+    \hline
+  \end{tabular}
+  \label{tab:cra-sbom-fields}
+\end{table}
+  
+Hoewel BSI TR-03183-2 een Duitse richtlijn is, vormt deze de facto standaard voor heel de EU. Duitsland loopt voorop in CRA-implementatie en cybersecurity-wetgeving binnen Europa \autocite{Robyn2025}.
+
+\section{CVE-Analyse en Vulnerability Management}
+\subsection{NVD/CPE-matching}
+CVE-Records worden verrijkt door de National Vulnerability Database (NVD) met gestructureerde metadata voor geautomatiseerde matching. De NVD bevat naast de CVE-details ook CVSS-scores, CPE-matchcriteria en referenties naar getroffen producten \autocite{NVD_API}.
+
+CPE (Common Platform Enumeration) strings identificeren gestandaardiseerd vendor, product en versie van getroffen software, volgens het patroon `cpe:2.3:part:vendor:product:version:update:edition:lang:sw\_edition:target\_sw:target\_hw:other` \autocite{CPE_23}.
+
+De matching-flow verloopt als volgt \autocite{NVD_API}:
+
+\begin{enumerate}
+    \item SBOM/dependency scan produceert lijst van componenten (naam en versie)
+    \item NVD CPE-criteria van CVE’s worden tegen componenten gematcht
+    \item Matches worden getoond met CVSS-score en exploit-details
+\end{enumerate}
+
+Deze CPE-matching maakt geautomatiseerde vulnerability detection mogelijk in CI/CD pipelines.
+
+\subsection{Dependency scanning tools}
+
+Dependency scanning tools zijn tools die detectie van kwetsbare componenten in de software supply chains kunnen automatiseren door lockfiles en manifests te analyseren \autocite{Aikido2024}. Aangezien er in deze Bachelorproef Jenkins zal gebruikt worden voor de CI/CD-pipeline, is er dan ook gekozen om de plugin \href{https://plugins.jenkins.io/dependency-check-jenkins-plugin/}{OWASP Dependency-check Jenkins plugin} te gebruiken.Andere gekende open source voorbeelden hiervan zijn Dependabot (GitHub) en Snyk CLI, die beide de NVD-data en proprietary vulnerability databases combineren.
+
+OWASP Dependency-Check scant alle populaire package managers (Maven, npm, pip, etc.) en genereert rapporten in HTML, XML en JSON formaten. De plugin integreert naadloos in Jenkins pipelines en kan builds laten falen bij kritieke vulnerabilities \autocite{OWASP2024}.
+
+\subsection{Risk scoring (CVSS)}
+
+CVSS v4.0 (Common vulnerability Scoring System) toont de ernst aan van kwetsbaarheden op een schaal van 0.0 tot 10.0 via vier metriekgroepen: Base, Threat, Supplemental en Environmental \autocite{firstCVSSv4}
+
+De \textbf{Base Score} berekent intrinsieke eigenschappen via 11 metrics:
+\begin{itemize}
+    \item \textbf{Exploitability}: Attack Vector (AV), Attack Requirements (AT), Privileges Required (PR), User Interaction (UI)
+    \item \textbf{Impact}: Vulnerable System Confidentiality (VC), Integrity (VI), Availability (VA)
+    \item \textbf{Attack Requirements (AT)}: nieuw in v4.0
+\end{itemize}
+
+\begin{table}[H]
+  \centering
+  \caption{CVSS v4.0 Base Score severity niveaus}
+  \begin{tabular}{|l|c|}
+  \hline
+  \textbf{Score} & \textbf{Niveau} \\
+  \hline
+  0.0 & NONE \\
+  0.1-3.9 & LOW \\
+  4.0-6.9 & MEDIUM \\
+  7.0-8.9 & HIGH \\
+  9.0-10.0 & CRITICAL \\
+  \hline
+  \end{tabular}
+  \label{tab:cvss-v4-scores}
+\end{table}
+  
+In de Jenkins pipeline zal CVSS v4.0-scores gebruikt worden om builds te blokkeren bij HIGH/CRITICAL vulnerabilities (≥7.0).
+
+\section{To be deleted}
 
 Dit hoofdstuk bevat je literatuurstudie. De inhoud gaat verder op de inleiding, maar zal het onderwerp van de bachelorproef *diepgaand* uitspitten. De bedoeling is dat de lezer na lezing van dit hoofdstuk helemaal op de hoogte is van de huidige stand van zaken (state-of-the-art) in het onderzoeksdomein. Iemand die niet vertrouwd is met het onderwerp, weet nu voldoende om de rest van het verhaal te kunnen volgen, zonder dat die er nog andere informatie moet over opzoeken \autocite{Pollefliet2011}.
 
@@ -68,18 +181,16 @@ Let er ook op: het \texttt{cite}-commando voor de punt, dus binnen de zin. Je ve
   \caption[Voorbeeld figuur.]{\label{fig:grail}Voorbeeld van invoegen van een figuur. Zorg altijd voor een uitgebreid bijschrift dat de figuur volledig beschrijft zonder in de tekst te moeten gaan zoeken. Vergeet ook je bronvermelding niet!}
 \end{figure}
 
-\begin{listing}
-  \begin{minted}{python}
-    import pandas as pd
-    import seaborn as sns
-
-    penguins = sns.load_dataset('penguins')
-    sns.relplot(data=penguins, x="flipper_length_mm", y="bill_length_mm", hue="species")
-  \end{minted}
-  \caption[Voorbeeld codefragment]{Voorbeeld van het invoegen van een codefragment.}
-\end{listing}
-
-\lipsum[7-20]
+%\begin{listing}
+%  \begin{minted}{python}
+%    import pandas as pd
+%    import seaborn as sns
+%
+%    penguins = sns.load_dataset('penguins')
+%    sns.relplot(data=penguins, x="flipper_length_mm", y="bill_length_mm", hue="species")
+%  \end{minted}
+%  \caption[Voorbeeld codefragment]{Voorbeeld van het invoegen van een codefragment.}
+%\end{listing}
 
 \begin{table}
   \centering
