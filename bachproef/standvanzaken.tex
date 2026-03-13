@@ -165,6 +165,166 @@ De \textbf{Base Score} berekent intrinsieke eigenschappen via 11 metrics:
   
 In de Jenkins pipeline zal CVSS v4.0-scores gebruikt worden om builds te blokkeren bij HIGH/CRITICAL vulnerabilities (≥7.0).
 
+\section{Toolselectie}
+
+\subsection{Vergelijkende analyse van securitytools}
+
+In deze bachelorproef is het doel om een DevSecOps-pipeline op te zetten die zowel kwetsbaarheden in eigen code alsook kwetsbaarheden in dependencies detecteert. Hiernaast moet dit ook een SBOM kunnen produceren dat dan hergebruikt kan worden in functie van CRA-compliance. Dit wilt zeggen dat er tools nodig zijn die geïntegreerd kunnen worden in Jenkins zodat ze aansluiten bij de huidige ontwikkelpraktijk .
+Hier gaan we volgende tools bespreken:
+\begin{itemize}
+  \item Snyk
+  \item Aikido Security
+  \item OWASP Dependency-Check
+  \item SonarQube
+\end{itemize}
+
+\subsubsection{Snyk}
+Snyk positioneert zich als een developer-securityplatform dat verschillende soorten scantypes combineert \autocite{SnykFeatures}:
+\begin{itemize}
+  \item Snyk Code (SAST)
+  \item Snyk Open Source (SCA)
+  \item Snyk Container
+  \item Snyk IaC
+\end{itemize}
+
+Dit platform ondersteunt zowel broncode- als dependency-analyse en kan integreren met bestaande SBOM-workflows voor kwetsbaarheidsanalyse en compliance-rapportering \autocite{SnykFeatures}. Snyk integreert met Jenkins via een officiële CLI en plugins, waardoor scans als aparte stages in de pipeline kunnen worden uitgevoerd \autocite{SnykJenkins}.
+
+Voordelen in deze context:
+\begin{itemize}
+  \item Je hebt maar één platform nodig voor SAST, SCA, Container en IaC met uniforme rapportage.
+  \item Standaardondersteuning voor de generatie van SBOM en koppeling aan NVD/CVE-data. 
+  \item Het heeft goede integraties met Jenkins.
+\end{itemize}
+
+Nadelen:
+\begin{itemize}
+  \item Commerciële licentie is nodig voor volledige dekking (SAST, container, IaC) en valt dus buiten budget.
+\end{itemize}
+\subsubsection{Aikido Security}
+Aikido biedt een geïntegreerd AppSecc-platform met zowel SAST als SCA-functionaliteit, gericht op lage false positives en eenvoudige integratie in bestaande DevOps-workflows \autocite{AikidoPlatform}.
+Het platform combineert:
+\begin{itemize}
+  \item Statische code-analyse (SAST) voor eigen applicatiecode.
+  \item Dependency scanning (SCA) voor open source libraries.
+  \item Secrets scanning en IaC-analyse.
+\end{itemize}
+Aikido ondersteunt SBOM-achtige dependency-overzichten die gekoppeld worden aan vulnerability databases (zoals NVD). Voor Jenkins is er een "local scanner" die in de pipeline draait en resultaten terugstuurt naar het platform \autocite{AikidoJenkins}.
+Voordelen in deze context:
+\begin{itemize}
+  \item Combineert SAST en SCA in één platform, met minder configuratie-inspanning dan aparte tools.
+  \item Jenkins-integratie via local scanner, geschikt voor on-premises pipelines.
+  \item Focus op lage false positive rates, wat ontwikkelaars minder frustreert en tijd bespaart, waardoor team moraal omhoog gaat.
+\end{itemize}
+Nadelen:
+\begin{itemize}
+  \item Commercieel platform met kosten voor volledige functionaliteit.
+  \item Minder mature community en documentatie dan Snyk.
+  \item SBOM-export functionaliteit is minder expliciet dan bij gespecialiseerde SCA-tools.
+\end{itemize}
+
+\subsubsection{OWASP Dependency-Check}
+
+OWASP Dependency-Check is een Software Composition Analysis (SCA) tool en opensource plugin voor Jenkins die aan de hand van het OWASP framework de dependencies gaat bekijken en vergelijken met bekende kwetsbaarheden in de NVD-database \autocite{Jenkins2024}.
+
+De tool analyseert:
+\begin{itemize}
+  \item Project manifests (Maven pom.xml, npm package.json, pip requirements.txt, etc.)
+  \item Binary files en lockfiles voor component-identificatie
+  \item Generatie van gedetailleerde rapporten (HTML, XML, JSON, CSV)
+\end{itemize}
+Dependency-Check gebruikt CPE-matching (zie Risk Scoring (CVSS)) om software en versies te koppelen aan CVE-records en CVSS v4.0-scores. Dit integreert perfect met Jenkins via een officiële plugin die scans uitvoert als pipeline-stage en builds kan blokkeren op basis van severity \autocite{Jenkins2024}.
+
+\begin{itemize}
+  \item Volledig gratis en open source, perfect voor een bachelorproef
+  \item Uitstekende Jenkins-integratie via officiële plugin
+  \item Directe koppeling met NVD/CPE en CVSS-scoring uit vorige hoofdstukken
+  \item Mature community en uitgebreide documentatie
+\end{itemize}
+
+Nadelen:
+\begin{itemize}
+  \item Alleen SCA-functionaliteit (geen SAST of DAST)
+  \item Vereist aanvullende tools voor volledige code-analyse
+  \item Kan false positives genereren bij complexe dependency-trees
+\end{itemize}
+
+
+\subsubsection{SonarQube}
+SonarQube is een open source platform met een sterke focus op SAST (Static Application Security Testing) en codekwaliteitsmetrieken aan de hand van continue code-inspectie \autocite{SonarQubeFeatures}.
+
+Het platform analyseert: 
+\begin{itemize}
+  \item Statische code-analyse (SAST) voor 30+ programmeertalen
+  \item Security hotspots en kwetsbaarheden (SQL injection, XSS, etc.)
+  \item Code smells, duplicatie en technische debt
+  \item Quality gates voor CI/CD integratie
+\end{itemize}
+
+SonarQube biedt zowel een gratis (Community Edition) als een betalende (Enterprise add-on) aan. Voor geavanceerde SCA en SBOM-functionaliteit heb je de Enterprise add-on nodig. Dit integreert ook uitstekend met Jenkins via de officiële SonarScanner plugin \autocite{SonarJenkins}.
+
+Voordelen in deze context:
+\begin{itemize}
+  \item Uitstekende SAST-functionaliteit voor eigen applicatiecode
+  \item Gratis Community Edition voor bachelorproef
+  \item Perfecte Jenkins-integratie met quality gates
+  \item Grote community en uitgebreide documentatie
+\end{itemize}
+
+Nadelen:
+\begin{itemize}
+  \item Geen SCA of SBOM in gratis versie (alleen SAST)
+  \item Advanced Security (SCA/SBOM) vereist betaalde Enterprise licentie
+  \item Minder gericht op dependency-security dan gespecialiseerde SCA-tools
+\end{itemize}
+
+\subsection{Bestaande CRA-compliance pipelines}
+
+Hier zullen er twee concrete voorbeelden besproken worden van pipelines die voldoen aan CRA-vereisten zoals SBOM-generatie, CVE-scanning en compliance-rapportering. Deze cases tonen hoe de geanalyseerde tools in de praktijk worden ingezet.
+
+\subsubsection{Red Hat Advanced Developer Suite (Enterprise Case)}
+
+Red Hat's Advanced Developer Suite integreert SBOM-generatie, CVE-scanning en compliance-gating in een Jenkins-pipeline. De pipeline bevat:
+\begin{enumerate}
+  \item \textbf{SBOM-generatie}: Trusted Profile Analyzer produceert CycloneDX SBOMs
+  \item \textbf{CVE-analyse}: SBOM wordt geüpload naar analyzer-service voor NVD-matching
+  \item \textbf{Compliance-gate}: Builds falen bij kritieke vulnerabilities of policy-violaties
+  \item \textbf{Audit-ready rapportage}: SBOMs en scan-resultaten worden gearchiveerd voor CRA-documentatie
+\end{enumerate}
+
+Deze aanpak voldoet aan de vereisten van CRA door machine-readable SBOMs te maken alsook vulnerability-data te koppelen \autocite{RedHatPipeline}.
+
+\subsubsection{Open Source Jenkins Pipeline (Syft + Trivy)}
+
+Een open source template op github toont een CRA-compliant pipeline met Syft voor SBOM en Trivy voor CVE-scanning \autocite{CRAEvidencePipeline}.
+
+\begin{minted}{groovy}
+pipeline {
+    agent any
+
+    stages {
+        stage(&#39;Generate SBOM&#39;) {
+            steps {
+                sh &#39;&#39;&#39;
+                    curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b .
+                    ./syft dir:. -o cyclonedx-json &gt; sbom.cdx.json
+                &#39;&#39;&#39;
+            }
+        }
+
+        stage(&#39;Archive SBOM&#39;) {
+            steps {
+                archiveArtifacts artifacts: &#39;sbom.cdx.json&#39;, fingerprint: true
+            }
+        }
+    }
+}
+
+\end{minted}
+  
+
+Deze pipeline produceert CycloneDX/SPDX SBOMs, scant voor CVEs en genereert audit-ready rapporten. Dit voldoet aan de BSI TR-03183-2 (de eisen voor de Duitse Overheid ivm. Cyber Resilience) en is direct bruikbaar voor Jenkins \autocite{CRAEvidencePipeline}. 
+
+
 \section{To be deleted}
 
 Dit hoofdstuk bevat je literatuurstudie. De inhoud gaat verder op de inleiding, maar zal het onderwerp van de bachelorproef *diepgaand* uitspitten. De bedoeling is dat de lezer na lezing van dit hoofdstuk helemaal op de hoogte is van de huidige stand van zaken (state-of-the-art) in het onderzoeksdomein. Iemand die niet vertrouwd is met het onderwerp, weet nu voldoende om de rest van het verhaal te kunnen volgen, zonder dat die er nog andere informatie moet over opzoeken \autocite{Pollefliet2011}.
