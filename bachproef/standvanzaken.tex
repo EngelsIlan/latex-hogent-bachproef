@@ -324,6 +324,33 @@ pipeline {
 
 Deze pipeline produceert CycloneDX/SPDX SBOMs, scant voor CVEs en genereert audit-ready rapporten. Dit voldoet aan de BSI TR-03183-2 (de eisen voor de Duitse Overheid ivm. Cyber Resilience) en is direct bruikbaar voor Jenkins \autocite{CRAEvidencePipeline}. 
 
+\section{Technische Uitdagingen}
+
+\subsection{Tool-integratie}
+
+De eerste technische uitdaging, en degene die voor mij ook het moeilijkste zal zijn om te impleneteren, bij het opzetten van een DevSecOps-pipeline is de integratie van meerdere securitytools in één consistente workflow. Elke tool heeft een specifiek configuratieformaat, authenticatie- en autorisatiemechanismen, en verwacht andere input- en outputformaten (zoals SBOM in CycloneDX, scanraporten in JSON of HTML). Dit verhoogt de complexiteit van de pipelineconfiguratie en maakt foutafhandeling moeilijker wanneer één van de tools faalt.
+
+Bovendien moet er gekozen worden op welk moment in de pipeline SBOM-generatie en kwetsbaarheidsscans worden uitgevoerd. Built-time integratie levert nauwkeurige SBOMs op die overeenkomen met het artefact dat gedeployed wordt, maar vraagt een goede inpassing in bestaande build-scripts (Maven, npm, Docker,...). Als deze tooling niet correct wordt aangeroepen, bestaat het risico op onvolledige SBOMs of ontbrekende scanresultaten, wat de betrouwbaarheid van de hele keten ondermijnt.
+
+\subsection{Performance Overhead}
+
+Het toevoegen van SBOM-generatie en securityscans introduceert onvermijdelijk extra runtime in de CI/CD-pipeline. SBOM-tools moeten alle dependencies analyseren terwijl SCA- en SAST-tools vaak volledige codebases of container-images doorlopen. Zeker bij grotere projecten kan dit minuten toevoegen aan elke build, wat ontwikkelaars ontmoedigt om regelmatig te mergen en pipelines uit te voeren. Het komt er op neer dat hoe meer code en hoe meer dependencies er zijn, hoe langer het duurt voordat de pipeline volledig gerunt is.
+
+Daarnaast kan ook opslag en transport van data een probleem zijn. SBOMs genereren en verwerken voor meerdere services, is veel werk. Afhankelijk van hoe groot de applicatie is en hoeveel dependencies het heeft kan dit gigantisch veel opslag vereisen. Dit moet ook nog eens 10 jaar opgeslagen blijven per versie, dus er moet een oplossing zijn voor lange termijns opslag van de SBOMs \autocite{CRAEvidenceSBOM}.
+
+\subsection{False positives}
+
+Een derde technische uitdaging is het omgaan met false positives in kwetsbaarheidsscans. SCA-tools matchen componenten vaak op basis van naam en versie tegen publiek beschikbare CVE-databases. Bij libraries die bijna dezelfde naam hebben in verschillende ecosystemen of bij slecht onderhouden CPE-gegevens kunnen kwetsbaarheden ten onrechte aan een project worden gekoppeld. Dit resulteert in ruis in de rapporten en extra werk om issues manueel te verifiëren en op te lossen.
+
+Er is ook een andere kant dan de technische impact bij false positives, de procesmatige impact. Als ontwikkelaars continu als "kritiek" gemarkeerde kwetsbaarheden moeten negeren, vermindert het vertrouwen in de tooling en worden waarschuwingen sneller genegeerd. Een robuuste DevSecOps-pipeline moet daarom mechanismen voorzien om onterechte meldingen te suppressen, baseline-vergelijkingen te maken en enkel nieuwe of bevestigde kwetsbaarheden als blocking te behandelen.
+
+\subsection{CRA-specifieke gaps}
+
+Hoewel algemene DevSecOps-praktijken goed gedocumenteerd zijn, blijven er specifieke gebrekken voor CRA-conformiteit.
+
+\textbf{Geen standaard CRA-checklists voor pipelines.} Er bestaan wel algemene DevSecOps-checklists, maar geen officiële of gestandaardiseerde CRA-specifieke controlelijsten voor CI/CD-pipelines. Dit dwingt teams om zelf te interpreteren hoe de CRA (zoals SBOM-kwaliteit, vulnerability handling en conformiteitsbewijs) te vertalen naar concrete pipeline-stappen.
+
+\textbf{Onvolwassen SBOM → CVE-automatisering.} Ondanks dat CRA SBOMs vereist om vulnerabilities te identificeren, blijft de koppeling tussen SBOMs en CVE-databases (NVD, EPSS,...) nog experimenteel. Tools zoals SBOM-CVE-Check bestaan, maar vereisen vaak manuele configuratie en missen robuuste integratie met commerciële pipelines. Dit maakt automatische compliance-validatie onbetrouwbaar.
 
 \section{To be deleted}
 
