@@ -1,0 +1,24 @@
+%%=============================================================================
+%% Proof of Concept
+%%=============================================================================
+
+\chapter{\IfLanguageName{dutch}{Proof of Concept}{Proof of Concept}}%
+\label{ch:Proof of Concept}
+
+\section{Doel en Scope}
+De Proof of Concept (PoC) heeft als doel aan te tonen hoe een bestaande CI/CD-pipeline uitgebreid kan worden met CRA-relevante securitycontroles, zonder het ontwikkelproces volledig te hertekenen. De focus ligt op twee kernactiviteiten: het genereren van een Software Bill of Materials (SBOM) en het automatisch uitvoeren van dependency scanning met een duidelijke kwaliteitsdrempel (quality gate) op basis van CVSS-scores.
+
+De PoC is bewust beperkt gehouden tot een paar projectrepositories met relatief eenvoudige buildketens (zoals Maven- of .NET-projecten). Complexere scenario's zoals multi-repo orkestratie of geavanceerde policy engines vallen hier buiten de scope.
+
+\section{Gebruikte tools en omgeving}
+
+De PoC is opgezet in een Virtuele Machine (VM) waar een Jenkins Docker container op draait, zodat de integratie van securitystappen zo realistisch mogelijk is. De volgende componenten worden gebruikt:
+\begin{itemize}
+    \item Een demo-applicatie met externe dependencies om realistische SBOMs en dependency-rapporten te kunnen genereren.
+    \item Syft als SBOM-generator, geconfigureerd om een CycloneDX-SBOM (\texttt{sbom.cdx.json}) te produceren op basis van de gecompileerde applicatie.
+    \item OWASP Dependency-Check als Software Composition Analysis (SCA)-tool, gebruikt om kwetsbaarheden in de gebruikte libraries te detecteren en een HTML-rapport te genereren.
+\end{itemize}
+
+Alle pipelineconfiguratie is opgeslagen in een \texttt{Jenkinsfile}, zodat wijzigingen in de beveiligingslogica versiebeheer doorlopen zoals gewone broncode.
+
+\section{High-level pipeline-overzicht}
