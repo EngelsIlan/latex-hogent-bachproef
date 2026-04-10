@@ -10,19 +10,28 @@ In dit hoofdstuk wordt de huidige stand van zaken rond de Cyber Resilience Act e
 
 \section{Inleiding}
 
-Er is de voorbije jaren een sterke evolutie geweest in onderzoek naar de automatisering van beveiligingstesten om gevaarlijke commits op te sporen en security-scans te integreren in het ontwikkelingsproces.\autocite{Takahashi2025} Omdat de complexiteit van software steeds toeneemt en supply-chain-aanvallen groeien, richten steeds meer bedrijven zich op DevSecOps, waarbij beveiliging vanaf het begin in de CI/CD-pipeline wordt geïntegreerd.\autocite{Takahashi2025} Ondertussen verplicht nieuwe Europese wetgeving, zoals de Cyber Resilience Act, fabrikanten van software- en hardwareproducten om hun producten duidelijk veilig en betrouwbaar te maken vóór deze op de markt komen.\autocite{EU_CRA} 
+Er is de voorbije jaren een sterke evolutie geweest in onderzoek naar de automatisering van beveiligingstesten om gevaarlijke commits op te sporen en security-scans te integreren in het ontwikkelingsproces \autocite{Takahashi2025}. Omdat de complexiteit van software steeds toeneemt en supply-chain-aanvallen groeien, richten steeds meer bedrijven zich op DevSecOps, waarbij beveiliging vanaf het begin in de CI/CD-pipeline wordt geïntegreerd \autocite{Takahashi2025}. Met supply-chain-aanvallen worden aanvallen bedoeld waarbij niet de applicatie zelf rechtstreeks wordt aangevallen, maar zwakke schakels in de softwareketen, zoals externe dependencies, buildtools, repositories of updateprocessen \autocite{OWASPSupplyChain,LegitSupplyChain}. Ondertussen verplicht nieuwe Europese wetgeving, zoals de Cyber Resilience Act, fabrikanten van software- en hardwareproducten om hun producten duidelijk veilig en betrouwbaar te maken vóór deze op de markt komen \autocite{EU_CRA}. 
 
-Deze literatuurstudie schetst de huidige stand van zaken rond CRA-compliance, beveiligingsautomatisering, SBOM-generatie en CVE-analyse, en toont welke problemen er vandaag nog bestaan.
+Deze literatuurstudie schetst de huidige stand van z\section{Cyber Resilience Act}
 
-\section{Cyber Resilience Act}
-
-De Cyber Resilience Act (CRA), die op 10 december 2024 in werking trad, is een Europese wetgeving die de cybersecurity van digitale producten verplicht stelt vóór deze op de markt komen \autocite{EU_CRA}. Het doel hiervan is het verbeteren van de digitale weerbaarheid van producten en het verkleinen van de risico's door kwetsbaarheden in software en hardware op tijd te detecteren en mitigeren. 
+De Cyber Resilience Act (CRA), die op 10 december 2024 in werking trad, is een Europese wetgeving die de cybersecurity van digitale producten verplicht stelt vóór deze op de markt komen \autocite{EU_CRA}. Het doel hiervan is het verbeteren van de digitale weerbaarheid van producten, met andere woorden: het vermogen van deze producten om veilig en betrouwbaar te blijven functioneren ondanks cyberdreigingen en het verkleinen van de risico's door kwetsbaarheden in software en hardware op tijd te detecteren en mitigeren. 
 
 De CRA legt strikte eisen op doorheen de volledige levenscyclus: security-by-design (risicoanalyse en secure development lifecycle), Software Bill of Materials (SBOM) voor transparantie van componenten, vulnerability management (CVE-scans en mitigatie), incidentrapportage binnen 24 uur bij ernstige kwetsbaarheden en verplichte beveiligingsupdates gedurende minstens 5 jaar \autocite{EU_CRA}. De implementatietijdslijn verloopt gefaseerd: meldplicht voor ernstige kwetsbaarheden start op 11 september 2026, volledige toepassing van alle eisen inclusief CE-certificering vanaf 11 december 2027 \autocite{RDI2024CRA}.
 
-De nieuwe wetgeving zorgt voor zowel kansen als uitdagingen voor organisaties. Langs de ene kant stimuleert het innovatie en meer cyberveiligheid waardoor ook de betrouwbaarheid van de producten verhoogt, maar langs de andere kant bestaat er ook onduidelijkheid over specifieke productcategorieën, interpretatie van vereisten en implementatietijdlijnen van 36 maanden \autocite{ECSO2024}. Deze wetgeving is dan ook cruciaal voor bedrijven zoals Excentis, omdat naleving bepaalt of een product in aanmerking komt voor een CE-certificering \autocite{EuropeanCommission2024CRAnews}.
+De nieuwe wetgeving zorgt voor zowel kansen als uitdagingen voor organisaties. Enerzijds stimuleert het innovatie en meer cyberveiligheid waardoor ook de betrouwbaarheid van de producten verhoogt, maar anderzijds bestaat er ook onduidelijkheid over specifieke productcategorieën, interpretatie van vereisten en implementatietijdlijnen van 36 maanden \autocite{ECSO2024}. Deze wetgeving is dan ook cruciaal voor bedrijven zoals Excentis, omdat naleving bepaalt of een product in aanmerking komt voor een CE-certificering \autocite{EuropeanCommission2024CRAnews}. Dit certificaat toont aan dat het product voldoet aan de CRA-wetgeving, wat zowel marktoegang als het vertrouwen van klanten en partners ondersteunt \autocite{RVO_CE}.
+aken rond CRA-compliance, beveiligingsautomatisering, SBOM-generatie en CVE-analyse, en toont welke problemen er vandaag nog bestaan.
 
-\section{CRA-Specifieke vereisten voor CI/CD}
+\section{Cyber Resilience Act}
+\subsection{Inleiding en doelstellingen}
+De Cyber Resilience Act (CRA), die op 10 december 2024 in werking trad, is een Europese wetgeving die de cybersecurity van digitale producten verplicht stelt vóór deze op de markt komen \autocite{EU_CRA}. Het doel hiervan is het verbeteren van de digitale weerbaarheid van producten, met andere woorden: het vermogen van deze producten om veilig en betrouwbaar te blijven functioneren ondanks cyberdreigingen en het verkleinen van de risico's door kwetsbaarheden in software en hardware op tijd te detecteren en mitigeren. 
+
+\subsection{Specifieke vereisten en tijdlijn}
+De CRA legt strikte eisen op doorheen de volledige levenscyclus: security-by-design (risicoanalyse en secure development lifecycle), Software Bill of Materials (SBOM) voor transparantie van componenten, vulnerability management (CVE-scans en mitigatie), incidentrapportage binnen 24 uur bij ernstige kwetsbaarheden en verplichte beveiligingsupdates gedurende minstens 5 jaar \autocite{EU_CRA}. De implementatietijdslijn verloopt gefaseerd: meldplicht voor ernstige kwetsbaarheden start op 11 september 2026, volledige toepassing van alle eisen inclusief CE-certificering vanaf 11 december 2027 \autocite{RDI2024CRA}.
+
+\subsection{Impact voor bedrijven}
+De nieuwe wetgeving zorgt voor zowel kansen als uitdagingen voor organisaties. Enerzijds stimuleert het innovatie en meer cyberveiligheid waardoor ook de betrouwbaarheid van de producten verhoogt, maar anderzijds bestaat er ook onduidelijkheid over specifieke productcategorieën, interpretatie van vereisten en implementatietijdlijnen van 36 maanden \autocite{ECSO2024}. Deze wetgeving is dan ook cruciaal voor bedrijven zoals Excentis, omdat naleving bepaalt of een product in aanmerking komt voor een CE-certificering \autocite{EuropeanCommission2024CRAnews}. Dit certificaat toont aan dat het product voldoet aan de CRA-wetgeving, wat zowel marktoegang als het vertrouwen van klanten en partners ondersteunt \autocite{RVO_CE}.
+
+\subsection{CRA-Specifieke vereisten voor CI/CD}
 
 De CRA verplicht geen gebruik van CI/CD-pipelines of automatisering, maar legt wel strikte cybersecurity-eisen op vóór marktintroductie. Deze moeten manueel of geautomatiseerd worden nageleefd, wat tijd, mankracht en dus kosten met zich meebrengt \autocite{Claranet2025}.
 
@@ -38,30 +47,30 @@ DevSecOps rust op vijf kernprincipes die beveiliging integreren in de gehele sof
 
 \begin{itemize}
 \item \textbf{Shift-left security}: Beveiliging wordt al geïmplementeerd in de vroegste ontwikkelfasen (IDE, eerste CI-stap) in plaats van pas aan het einde.
-\item \textbf{Automatisering van security controls}: Alle securitytesten (SAST/DAST/SCA) worden volledig geautomatiseerd in de CI/CD-pipeline.
-\item \textbf{Policy-as-code}: Securityregels worden als code gedefinieerd (OPA, Sentinel) en automatisch afgedwongen bij elke commit.
+\item \textbf{Automatisering van security controls}: Alle securitytesten worden volledig geautomatiseerd in de CI/CD-pipeline (zie subsectie~\ref{subsec:security-testing-pipelines}).
+\item \textbf{Policy-as-code}: Securityregels worden als code gedefinieerd en automatisch afgedwongen bij elke commit.
 \item \textbf{Samenwerking Dev/Sec/Ops}: Ontwikkelaars, security en operations delen verantwoordelijkheid en werken met dezelfde tools.
 \item \textbf{Continue monitoring}: Real-time dreigingsdetectie en vulnerability scanning blijven doorwerken na deployment.
 \end{itemize}
 
 Deze principes zorgen ervoor dat beveiliging geen bottleneck vormt maar een geïntegreerd onderdeel wordt van snelle softwareontwikkeling.
 
-\subsection{Security testing in pipelines}
+\subsection{Security testing in pipelines}\label{subsec:security-testing-pipelines}
 
 In een DevSecOps-context worden verschillende soorten securitytesten geïntegreerd in de CI/CD-pipeline, zodat kwetsbaarheden zo vroeg mogelijk worden opgespoord \autocite{RamdassJain2025}. Daarbij wordt vaak een combinatie gebruikt van Static Application Security Testing (SAST), Dynamic Application Security Testing (DAST) en Software Composition Analysis (SCA), die automatisch draaien bij elke build of pull request \autocite{AWS2021}. Dit vermindert de kans dat kwetsbaarheden onopgemerkt in productie kunnen terechtkomen en helpt om sneller te reageren op nieuwe dreigingen \autocite{Snyk2026}.
 
-De OWASP Top 10 fungeert hierbij vaak als referentiekader om te bepalen welke soorten kwetsbaarheden minstens automatisch afgedekt moeten worden. Voor deze bachelorproef kan een shortlist van relevante categorieën worden opgesteld, zoals injectie, broken access control en kwetsbaarheden in afhankelijkheden, die door de pipeline automatisch getest worden. Tools zoals SAST-scanners voor broncode, DAST-scanners voor runtime-testing en dependency-scanners voor bibliotheken kunnen als aparte stappen in de pipeline worden geïntegreerd, waarbij de build wordt geblokkeerd als ernstige kwetsbaarheden worden gevonden.
+De OWASP Top 10 \autocite{OWASPTop10_2025} fungeert hierbij vaak als referentiekader om te bepalen welke soorten kwetsbaarheden minstens automatisch afgedekt moeten worden. Voor deze bachelorproef kan een shortlist van relevante categorieën worden opgesteld, zoals injectie, broken access control en kwetsbaarheden in afhankelijkheden, die door de pipeline automatisch getest worden. Tools zoals SAST-scanners voor broncode, DAST-scanners voor runtime-testing en dependency-scanners voor bibliotheken kunnen als aparte stappen in de pipeline worden geïntegreerd, waarbij de build wordt geblokkeerd als ernstige kwetsbaarheden worden gevonden.
 
 \section{Software Bill of Materials}
 \subsection{Wat is een Software Bill of Materials?}
 
 Een Software Bill of Materials (SBOM) is een gestructureerde lijst van alle softwarecomponenten waaruit een applicatie of systeem is opgebouwd. Dit bevat typische velden zoals naam van het component, leverancier, versie, dependencies en metadata \autocite{IEEE2025}. Dit zorgt ervoor dat een organisatie beter zicht kan krijgen op hun software supply chain en sneller kwetsbaarheden en licentieproblemen kunnen identificeren \autocite{Stalnaker2024}.
 
-SBOM-informatie wordt vastgelegd in gestandaardiseerde formaten zodat ze zowel door mensen als door tools verwerkt kan worden. De meest gebruikte hiervan zijn SPDX (Software Package Data Exchange) en CycloneDX \autocite{Stalnaker2024}. SPDX richt zich vooral op licenties, provenance en relaties tussen componenten en wordt onder andere aanbevolen in sectoren met strikte compliance eisen \autocite{Stalnaker2024}. CycloneDX is dan een lichter SBOM-formaat dat specifiek ontworpen is voor application security en supply-chain-risk-analyse, met ingebouwde ondersteuningen voor security- en kwetsbaarheidscontext \autocite{Stalnaker2024}.
+SBOM-informatie wordt vastgelegd in gestandaardiseerde formaten zodat ze zowel door mensen als door tools verwerkt kan worden. De meest gebruikte hiervan zijn SPDX (Software Package Data Exchange) en CycloneDX \autocite{Stalnaker2024}. SPDX richt zich vooral op licenties, provenance en relaties tussen componenten en wordt onder andere aanbevolen in sectoren met strikte compliance eisen \autocite{Stalnaker2024}. CycloneDX is een lichter SBOM-formaat dat specifiek ontworpen is voor application security en supply-chain-risk-analyse, met ingebouwde ondersteuningen voor security- en kwetsbaarheidscontext \autocite{Stalnaker2024}.
 
 \subsection{SBOM Generatie-tools}
 
-SBOMs worden gegenereerd door tools die software dependencies analyseren tijdens de build-fase van CI/CD pipelines. \textcite{Mirakhorli2024} evalueerden 84 SBOM tools en identificeerden de top-performers op basis van taal/ecosysteem ondersteuning.
+SBOMs worden gegenereerd door tools die software dependencies analyseren tijdens de build-fase van CI/CD pipelines. \textcite{Mirakhorli2024} evalueerden 84 SBOM tools en identificeerden de tools met beste prestaties op basis van taal/ecosysteem ondersteuning.
 
 \begin{table}[H]
   \centering
@@ -80,9 +89,9 @@ SBOMs worden gegenereerd door tools die software dependencies analyseren tijdens
   \label{tab:sbom-tools}
 \end{table}
 
-Deze tools ondersteuenen meerdere programmeertalen en package managers (Maven, npm, pip, etc.) en exporteren naar zowel SPDX als CycloneDX formaten \autocite{Mirakhorli2024}. 
+Deze tools ondersteunen meerdere programmeertalen en package managers (Maven, npm, pip, etc.) en exporteren naar zowel SPDX als CycloneDX formaten \autocite{Mirakhorli2024}. 
 
-Voor deze bachelorproef zal één van deze tools worden geselecteerd voor SBOM-generatie in de CI/CD pipeline.
+Voor deze bachelorproef is \textbf{Syft} geselecteerd voor SBOM-generatie in de CI/CD pipeline. Deze keuze werd gemaakt op basis van verschillende criteria: het is een gratis en open source tool, het is in de voorgaande literatuur als één van de beste SBOM-generatietools voor containers beschouwd, en het integreert eenvoudig in Jenkins-pipelines. 
 
 \subsection{CRA-specifieke SBOM-vereisten}
 
@@ -115,23 +124,48 @@ Hoewel BSI TR-03183-2 een Duitse richtlijn is, vormt deze de facto standaard voo
 
 \section{CVE-Analyse en Vulnerability Management}
 \subsection{NVD/CPE-matching}
-CVE-Records worden verrijkt door de National Vulnerability Database (NVD) met gestructureerde metadata voor geautomatiseerde matching. De NVD bevat naast de CVE-details ook CVSS-scores, CPE-matchcriteria en referenties naar getroffen producten \autocite{NVD_API}.
+CVE-Records worden verrijkt door de National Vulnerability Database (NVD) met gestructureerde metadata voor geautomatiseerde matching. De NVD bevat naast de CVE-details ook \textbf{CVSS-scores} (score van 0 tot 10, hoe hoger hoe ernstiger) en \textbf{CPE-matchcriteria} (gestandaardiseerde identifiers voor getroffen software/hardware) en referenties naar getroffen producten \autocite{NVD_API}.
 
-CPE (Common Platform Enumeration) strings identificeren gestandaardiseerd vendor, product en versie van getroffen software, volgens het patroon `cpe:2.3:part:vendor:product:version:update:edition:lang:sw\_edition:target\_sw:target\_hw:other` \autocite{CPE_23}.
+CPE (Common Platform Enumeration) strings identificeren gestandaardiseerd vendor, product en versie van getroffen software, volgens het gestandaardiseerde patroon van NIST \autocite{CPE_23}:
+\begin{verbatim}
+cpe:2.3:part:vendor:product:version:update:edition:lang:sw\_edition:
+            target\_sw:target\_hw:other
+\end{verbatim}
 
 De matching-flow verloopt als volgt \autocite{NVD_API}:
 
-\begin{enumerate}
-    \item SBOM/dependency scan produceert lijst van componenten (naam en versie)
-    \item NVD CPE-criteria van CVE’s worden tegen componenten gematcht
-    \item Matches worden getoond met CVSS-score en exploit-details
-\end{enumerate}
-
+%\begin{enumerate}
+%    \item SBOM/dependency scan produceert lijst van componenten (naam en versie)
+%    \item NVD CPE-criteria van CVE’s worden tegen componenten gematcht
+%    \item Matches worden getoond met CVSS-score en exploit-details
+%\end{enumerate}
+\begin{figure}[h]
+  \centering
+  \begin{tikzpicture}[
+      box/.style={rectangle, draw, rounded corners, minimum height=1.2em, minimum width=3em, align=center, fill=blue!10},
+      arrow/.style={->, thick, >=stealth}
+  ]
+  
+  % Nodes
+  \node[box] (sbom) at (0,0) {SBOM/dependency scan\\(Syft, Dependency-Check)};
+  \node[box] (nvd) at (0,-2) {NVD CPE-criteria\\uit CVE's laden};
+  \node[box] (match) at (0,-4) {CPE-matching};
+  \node[box] (result) at (0,-6) {Resultaten tonen\\(CVSS-score, exploits)};
+  
+  % Arrows
+  \draw[arrow] (sbom) -- (nvd);
+  \draw[arrow] (nvd) -- (match);
+  \draw[arrow] (match) -- (result);
+  
+  \end{tikzpicture}
+  \caption{Matching-flow SBOM naar CVE-detectie via NVD CPE-matching}
+  \label{fig:cpe-matching-flow}
+\end{figure}
 Deze CPE-matching maakt geautomatiseerde vulnerability detection mogelijk in CI/CD pipelines.
 
 \subsection{Dependency scanning tools}
 
-Dependency scanning tools zijn tools die detectie van kwetsbare componenten in de software supply chains kunnen automatiseren door lockfiles en manifests te analyseren \autocite{Aikido2024}. Aangezien er in deze Bachelorproef Jenkins zal gebruikt worden voor de CI/CD-pipeline, is er dan ook gekozen om de plugin \href{https://plugins.jenkins.io/dependency-check-jenkins-plugin/}{OWASP Dependency-check Jenkins plugin} te gebruiken.Andere gekende open source voorbeelden hiervan zijn Dependabot (GitHub) en Snyk CLI, die beide de NVD-data en proprietary vulnerability databases combineren.
+Dependency scanning tools zijn tools die detectie van kwetsbare componenten in de software supply chains kunnen automatiseren door lockfiles en manifests te analyseren \autocite{Aikido2024}. Aangezien Jenkins het meest gebruikte CI/CD-platform is binnen de Excentis-omgevingen waar deze Proof of Concept wordt ontwikkeld, is er dan ook gekozen voor de \autocite{OWASPDependencyCheckPlugin} OWASP Dependency-check Jenkins plugin te gebruiken. Andere gekende open source voorbeelden hiervan zijn Dependabot (GitHub) en Snyk CLI, die beide de NVD-data en proprietary vulnerability databases combineren.
 
 OWASP Dependency-Check scant alle populaire package managers (Maven, npm, pip, etc.) en genereert rapporten in HTML, XML en JSON formaten. De plugin integreert naadloos in Jenkins pipelines en kan builds laten falen bij kritieke vulnerabilities \autocite{OWASP2024}.
 
@@ -169,7 +203,7 @@ In de Jenkins pipeline zal CVSS v4.0-scores gebruikt worden om builds te blokker
 
 \subsection{Vergelijkende analyse van securitytools}
 
-In deze bachelorproef is het doel om een DevSecOps-pipeline op te zetten die zowel kwetsbaarheden in eigen code alsook kwetsbaarheden in dependencies detecteert. Hiernaast moet dit ook een SBOM kunnen produceren dat dan hergebruikt kan worden in functie van CRA-compliance. Dit wilt zeggen dat er tools nodig zijn die geïntegreerd kunnen worden in Jenkins zodat ze aansluiten bij de huidige ontwikkelpraktijk .
+In deze bachelorproef is het doel om een DevSecOps-pipeline op te zetten die zowel kwetsbaarheden in eigen code alsook kwetsbaarheden in dependencies detecteert. Hiernaast moet dit ook een SBOM kunnen produceren die hergebruikt kan worden in functie van CRA-compliance. Dit wilt zeggen dat er tools nodig zijn die geïntegreerd kunnen worden in Jenkins zodat ze aansluiten bij de huidige ontwikkelpraktijk .
 Hier gaan we volgende tools bespreken:
 \begin{itemize}
   \item Snyk
@@ -277,6 +311,32 @@ Nadelen:
   \item Minder gericht op dependency-security dan gespecialiseerde SCA-tools
 \end{itemize}
 
+\begin{table}[h]
+  \centering
+  \caption{Vergelijking security tools voor Jenkins DevSecOps pipeline}
+  \label{tab:tool-comparison}
+  \begin{tabular}{|l|c|c|c|c|c|}
+    \hline
+    \textbf{Tool} & \textbf{SAST} & \textbf{SCA} & \textbf{SBOM} & \textbf{Jenkins} & \textbf{Licentie} \\
+    \hline
+    Snyk & Ja & Ja & Ja & Ja & Commercieel \\
+    Aikido & Ja & Ja & Gedeeltelijk & Ja & Commercieel \\
+    OWASP Dep-Check & Nee & Ja & Nee & Ja & Open Source \\
+    SonarQube & Ja & Gedeeltelijk & Nee & Ja & Open Source* \\
+    \hline
+  \end{tabular}
+  *Community editie gratis, Enterprise betaald
+\end{table}
+
+\subsubsection{Toolselectie}
+Voor deze bachelorproef is gekozen voor de combinatie \textbf{Syft (SBOM), OWASP Dependency-Check (SCA)} en \textbf{SonarQube (SAST)}, omwille van:
+\begin{itemize}
+    \item \textbf{Volledig open source} (geen budgetbeperkingen)
+    \item \textbf{Native Jenkins integratie}
+    \item \textbf{Synergie}: SonarQube voor code-kwaliteit, Dependency-Check voor dependencies
+\end{itemize}
+
+
 \subsection{Bestaande CRA-compliance pipelines}
 
 Hier zullen er twee concrete voorbeelden besproken worden van pipelines die voldoen aan CRA-vereisten zoals SBOM-generatie, CVE-scanning en compliance-rapportering. Deze cases tonen hoe de geanalyseerde tools in de praktijk worden ingezet.
@@ -288,14 +348,38 @@ Red Hat's Advanced Developer Suite integreert SBOM-generatie, CVE-scanning en co
   \item \textbf{SBOM-generatie}: Trusted Profile Analyzer produceert CycloneDX SBOMs
   \item \textbf{CVE-analyse}: SBOM wordt geüpload naar analyzer-service voor NVD-matching
   \item \textbf{Compliance-gate}: Builds falen bij kritieke vulnerabilities of policy-violaties
-  \item \textbf{Audit-ready rapportage}: SBOMs en scan-resultaten worden gearchiveerd voor CRA-documentatie
+  \item \textbf{Audit-ready rapportage}: SBOMs en scan-resultaten worden gearchiveerd voor CRA-documentatie (zie Figuur~\ref{fig:redhat-pipeline})
 \end{enumerate}
+
+
+\begin{figure}[h]
+  \centering
+  \begin{tikzpicture}[
+      box/.style={rectangle, draw, rounded corners, minimum height=1.2em, minimum width=4em, align=center, fill=red!5},
+      arrow/.style={->, thick, >=stealth}
+  ]
+  
+  % Nodes (vertical flow)
+  \node[box] (sbom) at (0,0) {1. SBOM-generatie\\(Trusted Profile Analyzer)};
+  \node[box] (cve) at (0,-1.5) {2. CVE-analyse\\(NVD-matching)};
+  \node[box] (gate) at (0,-3) {3. Compliance-gate\\(Kritieke vulns)};
+  \node[box] (audit) at (0,-4.5) {4. Audit-rapportage\\(CRA-compliance)};
+  
+  % Arrows
+  \draw[arrow] (sbom) -- (cve);
+  \draw[arrow] (cve) -- (gate);
+  \draw[arrow] (gate) -- (audit);
+  
+  \end{tikzpicture}
+  \caption{Red Hat Advanced Developer Suite pipeline voor CRA-compliance}
+  \label{fig:redhat-pipeline}
+\end{figure}
 
 Deze aanpak voldoet aan de vereisten van CRA door machine-readable SBOMs te maken alsook vulnerability-data te koppelen \autocite{RedHatPipeline}.
 
 \subsubsection{Open Source Jenkins Pipeline (Syft + Trivy)}
 
-Een open source template op github toont een CRA-compliant pipeline met Syft voor SBOM en Trivy voor CVE-scanning \autocite{CRAEvidencePipeline}.
+Een open source template op GitHub toont een CRA-compliant pipeline met Syft voor SBOM en Trivy voor CVE-scanning \autocite{CRAEvidencePipeline}.
 
 \begin{minted}{groovy}
 pipeline {
@@ -324,49 +408,46 @@ pipeline {
 
 Deze pipeline produceert CycloneDX/SPDX SBOMs, scant voor CVEs en genereert audit-ready rapporten. Dit voldoet aan de BSI TR-03183-2 (de eisen voor de Duitse Overheid ivm. Cyber Resilience) en is direct bruikbaar voor Jenkins \autocite{CRAEvidencePipeline}. 
 
-\section{Technische Uitdagingen}
+\section{Conclusie Literatuurstudie}
 
-\subsection{Tool-integratie}
+Deze literatuurstudie toont aan dat DevSecOps-praktijken en SBOM-generatie technisch goed gedocumenteerd zijn, met volwassen open source tools zoals OWASP Dependency-Check (SCA), SonarQube (SAST), Syft (SBOM) en Jenkins-integraties. Enterprise-oplossingen zoals Red Hat Advanced Developer Suite bieden geïntegreerde CRA-compliant workflows, maar vereisen commerciële licenties.
 
-De eerste technische uitdaging, en degene die voor mij ook het moeilijkste zal zijn om te impleneteren, bij het opzetten van een DevSecOps-pipeline is de integratie van meerdere securitytools in één consistente workflow. Elke tool heeft een specifiek configuratieformaat, authenticatie- en autorisatiemechanismen, en verwacht andere input- en outputformaten (zoals SBOM in CycloneDX, scanraporten in JSON of HTML). Dit verhoogt de complexiteit van de pipelineconfiguratie en maakt foutafhandeling moeilijker wanneer één van de tools faalt.
+\textbf{Bestaande oplossingen die direct gebruikt kunnen worden:}
+\begin{itemize}
+    \item \textbf{SCA}: OWASP Dependency-Check met NVD CPE-matching voor dependency-kwetsbaarheden
+    \item \textbf{SAST}: SonarQube Community Edition voor code-analyse  
+    \item \textbf{SBOM}: Syft/Trivy voor CycloneDX/SPDX generatie
+    \item \textbf{CI/CD}: Jenkins plugins voor pipeline-integratie
+\end{itemize}
 
-Bovendien moet er gekozen worden op welk moment in de pipeline SBOM-generatie en kwetsbaarheidsscans worden uitgevoerd. Built-time integratie levert nauwkeurige SBOMs op die overeenkomen met het artefact dat gedeployed wordt, maar vraagt een goede inpassing in bestaande build-scripts (Maven, npm, Docker,...). Als deze tooling niet correct wordt aangeroepen, bestaat het risico op onvolledige SBOMs of ontbrekende scanresultaten, wat de betrouwbaarheid van de hele keten ondermijnt.
+\textbf{Reikwijdte PoC-ontwikkeling:}
+\begin{itemize}
+    \item Tool-integratie en workflow-orkestratie in één consistente Jenkins pipeline
+    \item Performance-optimalisatie voor praktische ontwikkelworkflow
+    \item False positive filtering en baseline-mechanismen
+    \item CRA-specifieke compliance-validatie (nog ongestandaardiseerd)
+\end{itemize}
 
-\subsection{Performance Overhead}
+De PoC zal deze bewezen componenten combineren tot een werkende, Excentis-specifieke DevSecOps pipeline die CRA-conformiteit automatiseert.
 
-Het toevoegen van SBOM-generatie en securityscans introduceert onvermijdelijk extra runtime in de CI/CD-pipeline. SBOM-tools moeten alle dependencies analyseren terwijl SCA- en SAST-tools vaak volledige codebases of container-images doorlopen. Zeker bij grotere projecten kan dit minuten toevoegen aan elke build, wat ontwikkelaars ontmoedigt om regelmatig te mergen en pipelines uit te voeren. Het komt er op neer dat hoe meer code en hoe meer dependencies er zijn, hoe langer het duurt voordat de pipeline volledig gerunt is.
 
-Daarnaast kan ook opslag en transport van data een probleem zijn. SBOMs genereren en verwerken voor meerdere services, is veel werk. Afhankelijk van hoe groot de applicatie is en hoeveel dependencies het heeft kan dit gigantisch veel opslag vereisen. Dit moet ook nog eens 10 jaar opgeslagen blijven per versie, dus er moet een oplossing zijn voor lange termijns opslag van de SBOMs \autocite{CRAEvidenceSBOM}.
 
-\subsection{False positives}
 
-Een derde technische uitdaging is het omgaan met false positives in kwetsbaarheidsscans. SCA-tools matchen componenten vaak op basis van naam en versie tegen publiek beschikbare CVE-databases. Bij libraries die bijna dezelfde naam hebben in verschillende ecosystemen of bij slecht onderhouden CPE-gegevens kunnen kwetsbaarheden ten onrechte aan een project worden gekoppeld. Dit resulteert in ruis in de rapporten en extra werk om issues manueel te verifiëren en op te lossen.
+%\section{To be deleted}
 
-Er is ook een andere kant dan de technische impact bij false positives, de procesmatige impact. Als ontwikkelaars continu als "kritiek" gemarkeerde kwetsbaarheden moeten negeren, vermindert het vertrouwen in de tooling en worden waarschuwingen sneller genegeerd. Een robuuste DevSecOps-pipeline moet daarom mechanismen voorzien om onterechte meldingen te suppressen, baseline-vergelijkingen te maken en enkel nieuwe of bevestigde kwetsbaarheden als blocking te behandelen.
+%Dit hoofdstuk bevat je literatuurstudie. De inhoud gaat verder op de inleiding, maar zal het onderwerp van de bachelorproef *diepgaand* uitspitten. De bedoeling is dat de lezer na lezing van dit hoofdstuk helemaal op de hoogte is van de huidige stand van zaken (state-of-the-art) in het onderzoeksdomein. Iemand die niet vertrouwd is met het onderwerp, weet nu voldoende om de rest van het verhaal te kunnen volgen, zonder dat die er nog andere informatie moet over opzoeken \autocite{Pollefliet2011}.
 
-\subsection{CRA-specifieke gaps}
+%Je verwijst bij elke bewering die je doet, vakterm die je introduceert, enz.\ naar je bronnen. In \LaTeX{} kan dat met het commando \texttt{$\backslash${textcite\{\}}} of \texttt{$\backslash${autocite\{\}}}. Als argument van het commando geef je de ``sleutel'' van een ``record'' in een bibliografische databank in het Bib\LaTeX{}-formaat (een tekstbestand). Als je expliciet naar de auteur verwijst in de zin (narratieve referentie), gebruik je \texttt{$\backslash${}textcite\{\}}. Soms is de auteursnaam niet expliciet een onderdeel van de zin, dan gebruik je \texttt{$\backslash${}autocite\{\}} (referentie tussen haakjes). Dit gebruik je bv.~bij een citaat, of om in het bijschrift van een overgenomen afbeelding, broncode, tabel, enz. te verwijzen naar de bron. In de volgende paragraaf een voorbeeld van elk.
 
-Hoewel algemene DevSecOps-praktijken goed gedocumenteerd zijn, blijven er specifieke gebrekken voor CRA-conformiteit.
+%\textcite{Knuth1998} schreef een van de standaardwerken over sorteer- en zoekalgoritmen. Experten zijn het erover eens dat cloud computing een interessante opportuniteit vormen, zowel voor gebruikers als voor dienstverleners op vlak van informatietechnologie~\autocite{Creeger2009}.
 
-\textbf{Geen standaard CRA-checklists voor pipelines.} Er bestaan wel algemene DevSecOps-checklists, maar geen officiële of gestandaardiseerde CRA-specifieke controlelijsten voor CI/CD-pipelines. Dit dwingt teams om zelf te interpreteren hoe de CRA (zoals SBOM-kwaliteit, vulnerability handling en conformiteitsbewijs) te vertalen naar concrete pipeline-stappen.
+%Let er ook op: het \texttt{cite}-commando voor de punt, dus binnen de zin. Je verwijst meteen naar een bron in de eerste zin die erop gebaseerd is, dus niet pas op het einde van een paragraaf.
 
-\textbf{Onvolwassen SBOM → CVE-automatisering.} Ondanks dat CRA SBOMs vereist om vulnerabilities te identificeren, blijft de koppeling tussen SBOMs en CVE-databases (NVD, EPSS,...) nog experimenteel. Tools zoals SBOM-CVE-Check bestaan, maar vereisen vaak manuele configuratie en missen robuuste integratie met commerciële pipelines. Dit maakt automatische compliance-validatie onbetrouwbaar.
-
-\section{To be deleted}
-
-Dit hoofdstuk bevat je literatuurstudie. De inhoud gaat verder op de inleiding, maar zal het onderwerp van de bachelorproef *diepgaand* uitspitten. De bedoeling is dat de lezer na lezing van dit hoofdstuk helemaal op de hoogte is van de huidige stand van zaken (state-of-the-art) in het onderzoeksdomein. Iemand die niet vertrouwd is met het onderwerp, weet nu voldoende om de rest van het verhaal te kunnen volgen, zonder dat die er nog andere informatie moet over opzoeken \autocite{Pollefliet2011}.
-
-Je verwijst bij elke bewering die je doet, vakterm die je introduceert, enz.\ naar je bronnen. In \LaTeX{} kan dat met het commando \texttt{$\backslash${textcite\{\}}} of \texttt{$\backslash${autocite\{\}}}. Als argument van het commando geef je de ``sleutel'' van een ``record'' in een bibliografische databank in het Bib\LaTeX{}-formaat (een tekstbestand). Als je expliciet naar de auteur verwijst in de zin (narratieve referentie), gebruik je \texttt{$\backslash${}textcite\{\}}. Soms is de auteursnaam niet expliciet een onderdeel van de zin, dan gebruik je \texttt{$\backslash${}autocite\{\}} (referentie tussen haakjes). Dit gebruik je bv.~bij een citaat, of om in het bijschrift van een overgenomen afbeelding, broncode, tabel, enz. te verwijzen naar de bron. In de volgende paragraaf een voorbeeld van elk.
-
-\textcite{Knuth1998} schreef een van de standaardwerken over sorteer- en zoekalgoritmen. Experten zijn het erover eens dat cloud computing een interessante opportuniteit vormen, zowel voor gebruikers als voor dienstverleners op vlak van informatietechnologie~\autocite{Creeger2009}.
-
-Let er ook op: het \texttt{cite}-commando voor de punt, dus binnen de zin. Je verwijst meteen naar een bron in de eerste zin die erop gebaseerd is, dus niet pas op het einde van een paragraaf.
-
-\begin{figure}
-  \centering
-  \includegraphics[width=0.8\textwidth]{grail.jpg}
-  \caption[Voorbeeld figuur.]{\label{fig:grail}Voorbeeld van invoegen van een figuur. Zorg altijd voor een uitgebreid bijschrift dat de figuur volledig beschrijft zonder in de tekst te moeten gaan zoeken. Vergeet ook je bronvermelding niet!}
-\end{figure}
+%\begin{figure}
+%  \centering
+%  \includegraphics[width=0.8\textwidth]{grail.jpg}
+%  \caption[Voorbeeld figuur.]{\label{fig:grail}Voorbeeld van invoegen van een figuur. Zorg altijd voor een uitgebreid bijschrift dat de figuur volledig beschrijft zonder in de tekst te moeten gaan zoeken. Vergeet ook je bronvermelding niet!}
+%\end{figure}
 
 %\begin{listing}
 %  \begin{minted}{python}

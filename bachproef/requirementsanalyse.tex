@@ -1,0 +1,41 @@
+%%=============================================================================
+%% Requirementsanalyse
+%%=============================================================================
+
+\chapter{\IfLanguageName{dutch}{Resultaten van de requirementsanalyse}{Resultaten van de requirementsanalyse}}%
+\label{ch:Resultaten van de requirementsanalyse}
+
+\section{Huidige CI/CD situatie bij Excentis}
+
+Excentis gebruikt primair \textbf{Jenkins} als CI/CD platform. De meest voorkomende technologieën zijn \textbf{Java}, \textbf{.NET} en \textbf{Python}, waarbij Java de primaire testomgeving vormt voor deze bachelorproef.
+
+\section{Bestaande security practices}
+
+Er werden geen bestaande security scanning tools of SBOM-processen geïdentificeerd tijdens de requirementsanalyse.
+
+\section{Verwachte output van de pipeline}
+
+Uit gesprekken met de co-promotor bleek dat de verwachte output van de pipeline niet puur scanresulaten zijn maar ook een rapportage hiervan. De pipeline moet securityfouten op een automatische manier kunnen rapporteren aan ontwikkelaars, zodat kwetsbaarheden snel zichtbaar en opvolgbaar worden. Daarnaast moet de oplossing in staat zijn om een gegenereerde Software Bill of Materials (SBOM) te vergelijken met relevante CVE-databanken, zodat potentiële risico's in gebruikte componenten inzichtelijk worden.
+
+\begin{itemize}
+    \item De pipeline moet securityfouten automatisch kunnen rapporteren aan developers.
+    \item De pipeline moet een SBOM kunnen genereren en verwerken.
+    \item De pipeline moet de inhoud van een SBOM kunnen vergelijken met CVE-databanken.
+    \item De resultaten moeten voldoende duidelijk zijn om zowel developmentteams als het management inzicht te geven in kwetsbaarheden en compliance-risico's.
+\end{itemize}
+
+Deze output dient niet enkel een technisch doel, maar ook een organisatorisch doel. Enerzijds ondersteunt ze developmentteams bij het tijdig detecteren en oplossen van kwetsbaarheden. Anderzijds maakt ze ook het management bewust van bestaande securityproblemen en mogelijke compliance-risico's in softwareprojecten. De verwachte output van de pipeline moet dus zowel bruikbaar zijn op operationeel als op strategisch niveau.
+
+\section{Organisatorische prioriteiten}
+
+De belangrijkste driver is \textbf{tijd- en kostenbesparing} door automatisering van manuele security-processen.
+
+\section{Samenvatting requirements}
+
+\begin{itemize}
+    \item Platform: Jenkins
+    \item Test technologie: Java (uitbreidbaar naar .NET/Python)  
+    \item Geen bestaande security tooling
+    \item Automatische developer rapportage + management inzicht
+    \item Tijd/kosten optimalisatie als prioriteit
+\end{itemize}
