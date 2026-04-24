@@ -34,6 +34,13 @@ De pipeline volgt een klassieke CI/CD-volgorde waarin de securitystappen geïnte
 
 Deze opbouw zorgt ervoor dat securitycontroles niet losstaan van het ontwikkelproces, maar deel uitmaken van dezelfde geautomatiseerde workflow. Op die manier wordt de feedback voor ontwikkelaars vroeg in het proces gegeven en blijft de impact op de bestaande werkwijze beperkt.
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{../graphics/pipeline-structuur.png}
+    \caption{Structuur van een CRA-compliant CI/CD-pijplijn.}
+    \label{fig:pipleine-structuur}
+\end{figure}
+
 \section{Implementatie van de pipeline}
 
 De pipeline is geïmplementeerd als een \textbf{declaratieve Jenkins pipeline} in een \texttt{Jenkinsfile}. Deze pipeline volgt de klassieke CI/CD-volgorde met securitystappen geïntegreerd als kwaliteitscontroles na de reguliere buildfase.

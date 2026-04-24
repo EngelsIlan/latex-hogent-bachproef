@@ -7,15 +7,23 @@
 
 \section{Huidige CI/CD situatie bij Excentis}
 
-Excentis gebruikt primair \textbf{Jenkins} als CI/CD platform. De meest voorkomende technologieën zijn \textbf{Java}, \textbf{.NET} en \textbf{Python}, waarbij Java de primaire testomgeving vormt voor deze bachelorproef.
+Excentis gebruikt primair \textbf{Jenkins} als CI/CD-platform. De meest voorkomende technologieën zijn \textbf{Java}, \textbf{.NET} en \textbf{Python}, waarbij Java de primaire testomgeving vormt voor deze bachelorproef.
 
 \section{Bestaande security practices}
 
-Er werden geen bestaande security scanning tools of SBOM-processen geïdentificeerd tijdens de requirementsanalyse.
+Er werden geen bestaande security scanning tools of SBOM-processen geïdentificeerd bij Excentis tijdens de requirementsanalyse.
+
+\section{Huidige en gewenste securitycommunicatie}
+
+Uit gesprekken met de co-promotor bleek dat er vandaag geen gestructureerde manier bestaat om securitygerelateerde informatie systematisch te communiceren naar developers of het management. Kwetsbaarheden en securityproblemen worden ad hoc opgevolgd en niet centraal gerapporteerd.
+
+Voor de toekomst werden wel duidelijke verwachtingen geformuleerd. Enerzijds moeten kritieke bevindingen automatisch kunnen leiden tot het aanmaken van issues en het versturen van e-mails naar de betrokken ontwikkelaars. Anderzijds is er behoefte aan een eenvoudig overzicht in de vorm van een dashboard, bijvoorbeeld via Grafana, zodat zowel developmentteams als het management in één oogopslag zicht krijgen op de securitystatus van relevante projecten.
+
+Deze wensen sluiten aan bij de algemene doelstelling om securityrapportering te automatiseren en te integreren in bestaande ontwikkel- en opvolgprocessen, in plaats van aparte manuele rapportages te moeten opstellen.
 
 \section{Verwachte output van de pipeline}
 
-Uit gesprekken met de co-promotor bleek dat de verwachte output van de pipeline niet puur scanresulaten zijn maar ook een rapportage hiervan. De pipeline moet securityfouten op een automatische manier kunnen rapporteren aan ontwikkelaars, zodat kwetsbaarheden snel zichtbaar en opvolgbaar worden. Daarnaast moet de oplossing in staat zijn om een gegenereerde Software Bill of Materials (SBOM) te vergelijken met relevante CVE-databanken, zodat potentiële risico's in gebruikte componenten inzichtelijk worden.
+Uit gesprekken met de co-promotor bleek dat de verwachte output van de pipeline niet puur scanresultaten zijn maar ook een rapportage hiervan. De pipeline moet securityfouten op een automatische manier kunnen rapporteren aan ontwikkelaars, zodat kwetsbaarheden snel zichtbaar en opvolgbaar worden. Daarnaast moet de oplossing in staat zijn om een gegenereerde Software Bill of Materials (SBOM) te vergelijken met relevante CVE-databanken, zodat potentiële risico's in gebruikte componenten inzichtelijk worden.
 
 \begin{itemize}
     \item De pipeline moet securityfouten automatisch kunnen rapporteren aan developers.
@@ -28,7 +36,7 @@ Deze output dient niet enkel een technisch doel, maar ook een organisatorisch do
 
 \section{Organisatorische prioriteiten}
 
-De belangrijkste driver is \textbf{tijd- en kostenbesparing} door automatisering van manuele security-processen.
+De belangrijkste driver is \textbf{tijd- en kostenbesparing} door automatisering van manuele security-processen. Deze focus op automatisering vormt een belangrijk uitgangspunt voor het ontwerp van de Proof of Concept in hoofdstuk~\ref{ch:Proof of Concept}.
 
 \section{Samenvatting requirements}
 

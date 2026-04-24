@@ -59,6 +59,8 @@ Deze principes zorgen ervoor dat beveiliging geen bottleneck vormt maar een geï
 
 In een DevSecOps-context worden verschillende soorten securitytesten geïntegreerd in de CI/CD-pipeline, zodat kwetsbaarheden zo vroeg mogelijk worden opgespoord \autocite{RamdassJain2025}. Daarbij wordt vaak een combinatie gebruikt van Static Application Security Testing (SAST), Dynamic Application Security Testing (DAST) en Software Composition Analysis (SCA), die automatisch draaien bij elke build of pull request \autocite{AWS2021}. Dit vermindert de kans dat kwetsbaarheden onopgemerkt in productie kunnen terechtkomen en helpt om sneller te reageren op nieuwe dreigingen \autocite{Snyk2026}.
 
+Naast SAST, DAST en SCA worden in moderne DevSecOps-pipelines ook infrastructuurdefinities geanalyseerd via zogenaamde Infrastructure-as-Code (IaC)-scanners. Tools zoals Checkov voeren statische analyse uit op de Terraform-, Kubernetes- en andere IaC-bestanden op basis van een uitgebreide set beveiligings- en compliancepolicier \autocite{CheckovDoc,CheckovGithub}. Hiermee kunnen misconfiguraties, zoals publiek toegankelijke resources of ontbrekende encryptie, al vóór deployment worden opgespoord. Secrets-scanners analyseren broncode, configuratiebestanden en soms ook de volledige Git-historiek op patronen en hoge-entropy strings die op gelekte credentials wijzen \autocite{}. Trufflehog is een open source tool die zowel Git-repositories als filesystems kan scannen en daarbij ook verwijderde of niet meer zichtbare commits in de geschiedenis meeneemt, zodat gelekte secrets niet onbewust in producte kunnen terechtkomen \autocite{}
+
 De OWASP Top 10 \autocite{OWASPTop10_2025} fungeert hierbij vaak als referentiekader om te bepalen welke soorten kwetsbaarheden minstens automatisch afgedekt moeten worden. Voor deze bachelorproef kan een shortlist van relevante categorieën worden opgesteld, zoals injectie, broken access control en kwetsbaarheden in afhankelijkheden, die door de pipeline automatisch getest worden. Tools zoals SAST-scanners voor broncode, DAST-scanners voor runtime-testing en dependency-scanners voor bibliotheken kunnen als aparte stappen in de pipeline worden geïntegreerd, waarbij de build wordt geblokkeerd als ernstige kwetsbaarheden worden gevonden.
 
 \section{Software Bill of Materials}
@@ -91,7 +93,7 @@ SBOMs worden gegenereerd door tools die software dependencies analyseren tijdens
 
 Deze tools ondersteunen meerdere programmeertalen en package managers (Maven, npm, pip, etc.) en exporteren naar zowel SPDX als CycloneDX formaten \autocite{Mirakhorli2024}. 
 
-Voor deze bachelorproef is \textbf{Syft} geselecteerd voor SBOM-generatie in de CI/CD pipeline. Deze keuze werd gemaakt op basis van verschillende criteria: het is een gratis en open source tool, het is in de voorgaande literatuur als één van de beste SBOM-generatietools voor containers beschouwd, en het integreert eenvoudig in Jenkins-pipelines. 
+Voor deze bachelorproef is \textbf{Syft} geselecteerd voor SBOM-generatie in de CI/CD pipeline. Deze keuze werd gemaakt op basis van verschillende criteria: het is een gratis en open source tool, het is in de voorgaande literatuur als één van de beste SBOM-generatietools voor containers beschouwd, en het integreert eenvoudig in Jenkins-pipelines. Syft kan daarbij niet alleen klassieke projectstructuren analyseren, maar ook containerimages, waardoor dezelfde tool zowel voor applicatie- als containergerichte SBOM-generatie kan worden ingezet \autocite{SyftGithub,AnchoreOpensource}.
 
 \subsection{CRA-specifieke SBOM-vereisten}
 
@@ -169,9 +171,15 @@ Dependency scanning tools zijn tools die detectie van kwetsbare componenten in d
 
 OWASP Dependency-Check scant alle populaire package managers (Maven, npm, pip, etc.) en genereert rapporten in HTML, XML en JSON formaten. De plugin integreert naadloos in Jenkins pipelines en kan builds laten falen bij kritieke vulnerabilities \autocite{OWASP2024}.
 
+\subsubsection{Container image scanning}
+
+Naast dependency-scanners op broncode bestaan er ook tools die specifiek containerimages analyseren op kwetsbaarheden. Deze tools combineren informatie overbesturingssysteempakketten en applicatie dependencies met gegevens uit kwetsbaarheidsdatabanken zoals de NVD \autocite{AnchoreOpensource,BionSyftGrype}.
+
+Grype is een open source vulnerabilityscanner uit het Anchore-ecosysteem die containerimages, filesystems en SBOM-bestanden kan analyseren op bekende kwetsbaarheden \autocite{GrypeGithub}. De tool ondersteunt zowel rechtstreekse scans van images via Docekr of Podman als indirecte scans op basis van eerder gegenereerde SBOMs, bijvoorbeeld afkomstig van Syft \autocite{JitSyftGrype}. Dit zorgt er ook voor dat Grype makkelijk geïntegreerd kan worden in CI/CD-pipelines om containerimages nog vóór deployment automatisch te valideren op HIGH- en CRITICAL-kwetsbaarheden. 
+
 \subsection{Risk scoring (CVSS)}
 
-CVSS v4.0 (Common vulnerability Scoring System) toont de ernst aan van kwetsbaarheden op een schaal van 0.0 tot 10.0 via vier metriekgroepen: Base, Threat, Supplemental en Environmental \autocite{firstCVSSv4}
+Het Common Vulnerability Scoring System (CVSS) is een open standaardkader om de ernst van kwetsbaarheden te kwantificeren op een schaal van 0.0 tot 10.0 \autocite{firstCVSSv4}. CVSS v4.0 (Common vulnerability Scoring System) toont de ernst aan van kwetsbaarheden op een schaal van 0.0 tot 10.0 via vier metriekgroepen: Base, Threat, Supplemental en Environmental \autocite{firstCVSSv4}
 
 De \textbf{Base Score} berekent intrinsieke eigenschappen via 11 metrics:
 \begin{itemize}
@@ -210,6 +218,9 @@ Hier gaan we volgende tools bespreken:
   \item Aikido Security
   \item OWASP Dependency-Check
   \item SonarQube
+  \item Grype
+  \item Trufflehog
+  \item Checkov
 \end{itemize}
 
 \subsubsection{Snyk}
@@ -311,6 +322,25 @@ Nadelen:
   \item Minder gericht op dependency-security dan gespecialiseerde SCA-tools
 \end{itemize}
 
+\subsubsection{Grype}
+
+Grype is een open source vulnerabilityscanner die zich richt op containerimages en filesystems en deel uitmaakt van hetzelfde Anchore open source ecosysteem als Syft \autocite{AnchoreOpensource}.
+De tool kan zowel rechtstreeks images scannen als SBOM-bestanden analyseren die eerder met Syft werden gegenereerd. Ook rapporteert Grype kwetsbaarheden met onder andere CVE-identifier, severity en CVSS-score \autocite{GrypeGithub,BionSyftGrype}.
+
+Voordelen in deze context:
+\begin{itemize}
+  \item Gratis en open source.
+  \item Sluit dicht aan op Syft: Syft genereert de SBOM, Grype gebruikt deze als input voor vulnerability-analyse.
+  \item Eenvoudig te integreren in een Jenkins-pipeline via CLI-oproepen.
+\end{itemize}
+
+Nadelen:
+\begin{itemize}
+  \item Richt zich enkel op component- en image-level kwetsbaarheden (geen SAST of DAST).
+  \item Net als andere scanners gevoelig voor false positives, zeker bij complexe images.
+\end{itemize}
+
+
 \begin{table}[h]
   \centering
   \caption{Vergelijking security tools voor Jenkins DevSecOps pipeline}
@@ -323,13 +353,22 @@ Nadelen:
     Aikido & Ja & Ja & Gedeeltelijk & Ja & Commercieel \\
     OWASP Dep-Check & Nee & Ja & Nee & Ja & Open Source \\
     SonarQube & Ja & Gedeeltelijk & Nee & Ja & Open Source* \\
+    Grype & Nee & Ja (containers) & Ja (via SBOM) & Ja (CLI) & Open Source \\
     \hline
   \end{tabular}
   *Community editie gratis, Enterprise betaald
 \end{table}
 
+\subsubsection{Trufflehog (secrets-scanning)}
+
+Trufflehog is een open source secrets-scanner die Git-repositoriesn Dockerimages en lokale filesystems analyseert op gelekte API-sleutels, tokens en andere gevoelige credentials \autocite{TrufflehogGithub,TrufflehogBlogGitVsFs}. De tool kan zowel de huidige toestand van de code als de volledige Git-historiek scannen en ondersteunt voor vele credentialtypes ook een vorm van verificatie, waarbij getest wordt of een gevonden secret nog actief is \autocite{TrufflehogDeepDive}. In de context van deze bachelorproef wordt Trufflehog gebruikt om te voorkomen dat hardcoded secrets aanwezig zijn wanner de CI/CD-pipeline wordt uitgevoerd.
+
+\subsubsection{Checkov (IaC-scanning)}
+
+Checkov is een open source static analysis-tool voor Infrastructure-as-Code die Terraform-, Kubernetes-, CloudFormation- en andere configuratiebestanden controleert op security- en complianceproblemen \autocite{CheckovDoc,CheckovGithub}. De tool gebruik policy-as-code regels om onder meer te detecteren of opslag niet versleuteld is, securitygroups te open zijn of cloudresources publiek toegankelijk zijn \autocite{CheckovTerraformGuide}. Hoewel Checkov relevant is voor een bredere DevSecOps-aanpak, valt dit in deze bachelorproef buiten de scope van de Proof of Concept.
+
 \subsubsection{Toolselectie}
-Voor deze bachelorproef is gekozen voor de combinatie \textbf{Syft (SBOM), OWASP Dependency-Check (SCA)} en \textbf{SonarQube (SAST)}, omwille van:
+Voor deze bachelorproef is gekozen voor de combinatie \textbf{Syft (SBOM), OWASP Dependency-Check (SCA op applicatieniveau), Grype (container image scanning)} en \textbf{SonarQube (SAST)}, omwille van:
 \begin{itemize}
     \item \textbf{Volledig open source} (geen budgetbeperkingen)
     \item \textbf{Native Jenkins integratie}
