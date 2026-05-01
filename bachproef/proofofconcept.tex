@@ -6,7 +6,7 @@
 \label{ch:Proof of Concept}
 
 \section{Doel en Scope}
-De Proof of Concept (PoC) heeft als doel aan te tonen hoe een bestaande CI/CD-pipeline uitgebreid kan worden met CRA-relevante securitycontroles, zonder het ontwikkelproces volledig te hertekenen. De focus ligt op twee kernactiviteiten: het genereren van een Software Bill of Materials (SBOM) en het automatisch uitvoeren van dependency scanning met een duidelijke kwaliteitsdrempel (quality gate) op basis van CVSS-scores.
+De Proof of Concept (PoC) heeft als doel aan te tonen hoe een bestaande CI/CD-pipeline kan worden uitgebreid met CRA-relevante securitycontroles, zonder het ontwikkelproces volledig te hertekenen. De focus ligt op twee kernactiviteiten: het genereren van een Software Bill of Materials (SBOM) en het automatisch uitvoeren van dependency scanning met een duidelijke kwaliteitsdrempel (quality gate) op basis van CVSS-scores. Dit vormt een referentie-implementatie die door Excentis-teams kan worden overgenomen en in bestaande ontwikkelworkflows kan worden geïntegreerd.
 
 De PoC is bewust beperkt gehouden tot een paar projectrepositories met relatief eenvoudige buildketens (zoals Maven- of .NET-projecten). Complexere scenario's zoals multi-repo orkestratie of geavanceerde policy engines vallen hier buiten de scope van deze bachelorproef.
 
@@ -30,9 +30,9 @@ Alle pipelineconfiguratie is opgeslagen in een \texttt{Jenkinsfile}, zodat wijzi
 
 \section{High-level pipeline-overzicht}
 
-De pipeline volgt een klassieke CI/CD-volgorde waarin de securitystappen geïntegreerd worden als kwaliteitscontroles. Na codewijzigingen wordt de applicatie opgebouwd en getest. Vervolgens wordt een SBOM gegenereerd op basis van de gecompileerde applicatie. Daarna wordt een dependency scan uitgevoerd om bekende kwetsbaarheden in externe libraries te detecteren. Indien de scanresultaten boven de ingestelde drempel uitkomen, wordt de pipeline afgebroken en wordt een rapport gegenereerd voor de ontwikkelaars.
+De pipeline volgt een klassieke CI/CD-volgorde waarin de securitystappen zijn geïntegreerd als kwaliteitscontroles (zie Figuur~\ref{fig:pipleine-structuur}). Na codewijzigingen wordt de applicatie opgebouwd en getest. Vervolgens wordt een SBOM gegenereerd op basis van de gecompileerde applicatie. Daarna volgt een dependency scan uitgevoerd om bekende kwetsbaarheden in externe libraries te detecteren. Indien de scanresultaten boven de ingestelde drempel uitkomen, wordt de pipeline afgebroken en wordt een rapport gegenereerd voor de ontwikkelaars.
 
-Deze opbouw zorgt ervoor dat securitycontroles niet losstaan van het ontwikkelproces, maar deel uitmaken van dezelfde geautomatiseerde workflow. Op die manier wordt de feedback voor ontwikkelaars vroeg in het proces gegeven en blijft de impact op de bestaande werkwijze beperkt.
+Deze opbouw zorgt ervoor dat securitycontroles niet losstaan van het ontwikkelproces, maar deel uitmaken van dezelfde geautomatiseerde workflow. Op die manier wordt feedback voor ontwikkelaars vroeg in het proces gegeven en blijft de impact op de bestaande werkwijze beperkt.
 
 \begin{figure}[h]
     \centering
@@ -41,89 +41,111 @@ Deze opbouw zorgt ervoor dat securitycontroles niet losstaan van het ontwikkelpr
     \label{fig:pipleine-structuur}
 \end{figure}
 
-\section{Implementatie van de pipeline}
-
-De pipeline is geïmplementeerd als een \textbf{declaratieve Jenkins pipeline} in een \texttt{Jenkinsfile}. Deze pipeline volgt de klassieke CI/CD-volgorde met securitystappen geïntegreerd als kwaliteitscontroles na de reguliere buildfase.
-
 \subsection{Pipeline stages}
 
-De pipeline bestaat uit de volgende stages:
+De pipeline bestaat uit zes opeenvolgende stages die een klassieke CI/CD-workflow combineren met CRA-relevante securitycontroles:
 
 \begin{enumerate}
-    \item \textbf{Checkout}: Afhalen van de broncode uit de Git repository.
-    \item \textbf{Build}: Compilatie van de Java applicatie met Maven (\texttt{mvn clean package}).
-    \item \textbf{SBOM-generatie}: Genereren van een CycloneDX SBOM met Syft:
-    \begin{verbatim}
-    syft packages target/demo-app.jar \
-        -o cyclonedx-json=sbom.cdx.json
-    \end{verbatim}
-    \item \textbf{Dependency scanning}: Uitvoeren van SCA met OWASP Dependency-Check:
-    \begin{verbatim}
-    dependency-check \
-        --project "Demo App" \
-        --scan "target/" \
-        --format HTML \
-        --out "reports/"
-    \end{verbatim}
-    \item \textbf{Quality Gate}: Valideren of het aantal hoge en kritieke kwetsbaarheden (CVSS > 7.0) onder de drempel blijft.
-    \item \textbf{Rapportage}: Archiveren van SBOM en rapporten, notificatie naar developers.
+    \item \textbf{Checkout}: De broncode wordt opgehaald uit de Git repository, zodat de pipeline toegang heeft tot de nieuwste wijzigingen van de ontwikkelaars.
+    
+    \item \textbf{Build}: De Java applicatie wordt gecompileerd met Maven (\texttt{mvn clean package}). Dit produceert een uitvoerbare JAR-file (\texttt{target/demo-app.jar}) die als basis dient voor de securityanalyse.
+    
+    \item \textbf{SBOM-generatie}: Een CycloneDX SBOM wordt gegenereerd met Syft op basis van de gecompileerde applicatie. Deze machine-leesbare inventaris bevat alle componenten, versies en dependencies voor CRA-compliance:
+    \begin{listing}[h]
+        \caption{Syft SBOM-generatie commando}
+        \label{lst:syft-cli}
+        \begin{minted}{bash}
+        syft packages target/demo-app.jar \
+            --exclude "platform:java" \
+            -o cyclonedx-json=sbom.cdx.json
+        \end{minted}
+        \end{listing}
+    
+    \item \textbf{Dependency scanning}: OWASP Dependency-Check voert een Software Composition Analysis (SCA) uit op de JAR en gerelateerde artifacts om kwetsbaarheden in externe libraries te detecteren:
+    \begin{listing}[h]
+        \caption{OWASP Dependency-Check SCA scan}
+        \label{lst:dependency-check-cli}
+        \begin{minted}{bash}
+        dependency-check \
+            --project "Demo App" \
+            --scan "target/" \
+            --format HTML,JSON \
+            --out "reports/" \
+            --suppression "suppressions.xml"
+        \end{minted}
+        \end{listing}
+    
+    \item \textbf{Quality Gate}: Automatische validatie controleert of het aantal hoge/kritieke kwetsbaarheden (CVSS > 7.0) nul is. Bij overschrijding faalt de pipeline en blokkeert verdere deployment.
+    
+    \item \textbf{Rapportage}: SBOM-bestanden en vulnerability-rapporten worden gearchiveerd in Jenkins. Ontwikkelaars ontvangen notificaties met links naar de gedetailleerde rapporten voor remediation.
 \end{enumerate}
 
 \subsection{Configuratie van security tools}
 
-\textbf{Syft configuratie} (gedeelte van Jenkinsfile):
-\begin{verbatim}
-stage('SBOM Generation') {
-    steps {
-        sh '''
-            syft packages target/demo-app.jar \
-                --exclude "platform:java" \
-                -o cyclonedx-json=sbom.cdx.json
-            archiveArtifacts 'sbom.cdx.json'
-        '''
+\textbf{Syft configuratie} in de Jenkinsfile voor de generatie van een SBOM in JSON formaat:
+\begin{listing}[h]
+    \caption{Syft SBOM-generatie in Jenkins pipeline}
+    \label{lst:syft-jenkins}
+    \begin{minted}{groovy}
+    stage('SBOM Generation') {
+        steps {
+            sh '''
+                syft packages target/demo-app.jar \\
+                    --exclude "platform:java" \\
+                    -o cyclonedx-json=sbom.cdx.json
+                archiveArtifacts 'sbom.cdx.json'
+            '''
+        }
     }
-}
-\end{verbatim}
+    \end{minted}
+    \end{listing}
 
-\textbf{OWASP Dependency-Check configuratie}:
-\begin{verbatim}
-stage('Dependency Scan') {
-    steps {
-        sh '''
-            dependency-check \
-                --project "Demo App" \
-                --scan "target/" \
-                --format HTML,JSON \
-                --out "reports/" \
-                --suppression "suppressions.xml"
-        '''
-        archiveArtifacts artifacts: 'reports/**', allowEmptyArchive: true
+\textbf{OWASP Dependency-Check configuratie} om de SBOM te controleren op CVEs:
+\begin{listing}[h]
+    \caption{Dependency-Check scan in Jenkins pipeline}
+    \label{lst:dependency-jenkins}
+    \begin{minted}{groovy}
+    stage('Dependency Scan') {
+        steps {
+            sh '''
+                dependency-check \\
+                    --project "Demo App" \\
+                    --scan "target/" \\
+                    --format HTML,JSON \\
+                    --out "reports/" \\
+                    --suppression "suppressions.xml"
+            '''
+            archiveArtifacts artifacts: 'reports/**', allowEmptyArchive: true
+        }
     }
-}
-\end{verbatim}
+    \end{minted}
+    \end{listing}
 
 \subsection{Quality Gate implementatie}
 
-De quality gate controleert of het aantal kwetsbaarheden met CVSS-score > 7.0 nul is:
-\begin{verbatim}
-stage('Quality Gate') {
-    steps {
-        script {
-            def criticalVulns = sh(
-                script: 'grep -c "CVSS: [7-9]" reports/dependency-check-report.json || true',
-                returnStdout: true
-            ).trim()
-            
-            if (criticalVulns.toInteger() > 0) {
-                error "Kritieke kwetsbaarheden gedetecteerd: ${criticalVulns}"
+De quality gate analyseert het scanrapport en blokkeert de pipeline indien er kwetsbaarheden met CVSS-score > 7.0 aanwezig zijn:
+\begin{listing}[h]
+    \caption{Quality Gate CVSS-controle}
+    \label{lst:quality-gate}
+    \begin{minted}{groovy}
+    stage('Quality Gate') {
+        steps {
+            script {
+                def criticalVulns = sh(
+                    script: 'grep -c "CVSS: [7-9]" reports/dependency-check-report.json || true',
+                    returnStdout: true
+                ).trim()
+                
+                if (criticalVulns.toInteger() > 0) {
+                    error "Kritieke kwetsbaarheden gedetecteerd: ${criticalVulns}"
+                }
             }
         }
     }
-}
-\end{verbatim}
+    \end{minted}
+    \end{listing}
 
-Deze implementatie zorgt ervoor dat alleen code zonder hoge of kritieke kwetsbaarheden door de pipeline raakt, terwijl SBOMs automatisch worden gegenereerd en gearchiveerd voor compliance-doeleinden.
-%De pipeline is geïmplementeerd als een declaratieve Jenkins pipeline met de volgende stages:
+Deze implementatie zorgt ervoor dat alleen code zonder hoge of kritieke kwetsbaarheden door de pipeline raakt, terwijl SBOMs automatisch worden gegenereerd en gearchiveerd voor compliance-doeleinden.%De pipeline is geïmplementeerd als een declaratieve Jenkins pipeline met de volgende stages:
 
 %\begin{verbatim}
 %pipeline {
@@ -152,13 +174,13 @@ Deze implementatie zorgt ervoor dat alleen code zonder hoge of kritieke kwetsbaa
 
 De eerste technische uitdaging, en degene die ook het moeilijkste zal zijn om te implementeren, bij het opzetten van een DevSecOps-pipeline is de integratie van meerdere securitytools in één consistente workflow. Elke tool heeft een specifiek configuratieformaat, authenticatie- en autorisatiemechanismen, en verwacht andere input- en outputformaten (zoals SBOM in CycloneDX, scanraporten in JSON of HTML). Dit verhoogt de complexiteit van de pipelineconfiguratie en maakt foutafhandeling moeilijker wanneer één van de tools faalt.
 
-Bovendien moet er gekozen worden op welk moment in de pipeline SBOM-generatie en kwetsbaarheidsscans worden uitgevoerd. Built-time integratie levert nauwkeurige SBOMs op die overeenkomen met het artefact dat gedeployed wordt, maar vraagt een goede inpassing in bestaande build-scripts (Maven, npm, Docker,...). Als deze tooling niet correct wordt aangeroepen, bestaat het risico op onvolledige SBOMs of ontbrekende scanresultaten, wat de betrouwbaarheid van de hele keten ondermijnt.
+Bovendien moet er gekozen worden op welk moment in de pipeline SBOM-generatie en kwetsbaarheidsscans worden uitgevoerd. Build-time integratie levert nauwkeurige SBOMs op die overeenkomen met het artefact dat gedeployed wordt, maar vraagt een goede inpassing in bestaande build-scripts (Maven, npm, Docker,...). Als deze tooling niet correct wordt aangeroepen, bestaat het risico op onvolledige SBOMs of ontbrekende scanresultaten, wat de betrouwbaarheid van de hele keten ondermijnt.
 
 \subsection{Performance Overhead}
 
-Het toevoegen van SBOM-generatie en securityscans introduceert onvermijdelijk extra runtime in de CI/CD-pipeline. SBOM-tools moeten alle dependencies analyseren terwijl SCA- en SAST-tools vaak volledige codebases of container-images doorlopen. Zeker bij grotere projecten kan dit minuten toevoegen aan elke build, wat ontwikkelaars ontmoedigt om regelmatig te mergen en pipelines uit te voeren. Het komt er op neer dat hoe meer code en hoe meer dependencies er zijn, hoe langer het duurt voordat de pipeline volledig gerunt is.
+Het toevoegen van SBOM-generatie en securityscans introduceert onvermijdelijk extra runtime in de CI/CD-pipeline. SBOM-tools moeten alle dependencies analyseren terwijl SCA- en SAST-tools vaak volledige codebases of container-images doorlopen. Zeker bij grotere projecten kan dit minuten toevoegen aan elke build, wat ontwikkelaars ontmoedigt om regelmatig te mergen en pipelines uit te voeren. Het komt er op neer dat hoe meer code en hoe meer dependencies er zijn, hoe langer het duurt voordat de pipeline volledig uitgevoerd is.
 
-Daarnaast kan ook opslag en transport van data een probleem zijn. SBOMs genereren en verwerken voor meerdere services, is veel werk. Afhankelijk van hoe groot de applicatie is en hoeveel dependencies het heeft kan dit gigantisch veel opslag vereisen. Dit moet ook nog eens 10 jaar opgeslagen blijven per versie, dus er moet een oplossing zijn voor lange termijns opslag van de SBOMs \autocite{CRAEvidenceSBOM}.
+Daarnaast kan ook opslag en transport van data een probleem zijn. SBOMs genereren en verwerken voor meerdere services, is veel werk. Afhankelijk van hoe groot de applicatie is en hoeveel dependencies het heeft kan dit gigantisch veel opslag vereisen. Dit moet ook nog eens 10 jaar opgeslagen blijven per versie, dus er moet een oplossing zijn voor lange termijn opslag van de SBOMs \autocite{CRAEvidenceSBOM}.
 
 \subsection{False positives}
 

@@ -44,3 +44,12 @@
 
 \chapter*{\IfLanguageName{dutch}{Samenvatting}{Abstract}}
 
+De European Cyber Resilience Act (CRA) legt vanaf 2026 strengere eisen op aan softwareproducenten inzake transparantie over gebruikte componenten en kwetsbaarheidsbeheer. Dit onderzoek analyseert hoe deze regelgeving kan worden geautomatiseerd binnen CI/CD-pipelines bij Excentis, een bedrijf dat reeds Jenkins pipelines gebruikt maar geen systematische securitycontroles implementeert.
+
+De centrale onderzoeksvraag luidt: "\textit{Hoe kan een CI/CD-pipeline geautomatiseerd worden om CRA-compliant te zijn?}"
+
+Om deze vraag te beantwoorden werd een Proof of Concept (PoC) ontwikkeld volgens DevSecOps-principes. Een referentie-Jenkins pipeline werd opgezet met open source tools: Syft voor CycloneDX SBOM-generatie, OWASP Dependency-Check voor Software Composition Analysis (SCA), SonarQube voor Static Application Security Testing (SAST) en OWASP ZAP voor Dynamic Application Security Testing (DAST). Een quality gate blokkeert builds bij CVSS > 7.0 kwetsbaarheden.
+
+De PoC toont aan dat deze securitycontroles technisch haalbaar zijn in CI/CD-pipelines. SBOMs worden succesvol gegenereerd, scanning detecteerd meeste van de kwetsbaarheden, en de HIGH en CRITICAL kwetsbaarheden werden geblokkeerd door de quality gate.
+
+Deze resultaten bewijzen dat CRA-conformiteit automatiseerbaar is zonder bestaande ontwikkelprocessen te verstoren. De ontwikkelde pipeline vormt een kant-en-klare referentie-implementatie voor het Excentis-team. Beperkingen zijn de scope (enkel getest op Maven, .NET en Python applicaties), performance-overhead bij grote repositories en false positives die manuele validatie vereisten.
