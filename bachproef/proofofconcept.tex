@@ -6,23 +6,32 @@
 \label{ch:Proof of Concept}
 
 \section{Doel en Scope}
-De Proof of Concept (PoC) heeft als doel aan te tonen hoe een bestaande CI/CD-pipeline kan worden uitgebreid met CRA-relevante securitycontroles, zonder het ontwikkelproces volledig te hertekenen. De focus ligt op twee kernactiviteiten: het genereren van een Software Bill of Materials (SBOM) en het automatisch uitvoeren van dependency scanning met een duidelijke kwaliteitsdrempel (quality gate) op basis van CVSS-scores. Dit vormt een referentie-implementatie die door Excentis-teams kan worden overgenomen en in bestaande ontwikkelworkflows kan worden geïntegreerd.
+De Proof of Concept (PoC) heeft als doel aan te tonen hoe een bestaande CI/CD-pipeline kan worden uitgebreid met CRA-relevante securitycontroles, zonder het ontwikkelproces volledig te hertekenen. De focus ligt op twee kernactiviteiten: het genereren van een Software Bill of Materials (SBOM) en het automatisch uitvoeren van dependency scanning met een duidelijke kwaliteitsdrempel (quality gate) op basis van CVSS-scores. Daarnaast werden aanvullende controles geïntegreerd, zoals SAST, container image scanning, secrets scanning en DAST, om een volledig productiewaardige DevSecOps-pipeline te verkrijgen. Dit vormt een referentie-implementatie die door Excentis-teams kan worden overgenomen en in bestaande ontwikkelworkflows kan worden geïntegreerd.
 
-De PoC is bewust beperkt gehouden tot een paar projectrepositories met relatief eenvoudige buildketens (zoals Maven- of .NET-projecten). Complexere scenario's zoals multi-repo orkestratie of geavanceerde policy engines vallen hier buiten de scope van deze bachelorproef.
+De PoC is bewust beperkt gehouden tot een paar projectrepositories met relatief eenvoudige buildketens (zoals Maven-, .NET- of Python-projecten). Complexere scenario's zoals multi-repo orkestratie of geavanceerde policy engines vallen hier buiten de scope van deze bachelorproef.
 
 \section{Gebruikte tools en omgeving}
 
 \subsection{Gekozen tools}
 
-De implementatie van de Proof of Concept maakt gebruik van Jenkins als CI/CD-platform, aangezien dit reeds binnen Excentis wordt toegepast. Voor de generatie van SBOMs werd Syft gekozen, omdat deze tool open source is en op een gebruiksvriendelijke manier CycloneDX-SBOMs kan genereren. Voor vulnerability scanning werd OWASP Dependency-Check ingezet, aangezien deze tool toelaat om bekende kwetsbaarheden in gebruikte dependencies op een relatief eenvoudige manier te detecteren en te rapporteren.
+De implementatie van de Proof of Concept maakt gebruik van Jenkins als CI/CD-platform, aangezien dit reeds binnen Excentis wordt toegepast. Voor de verschillende securiytaken werden uitsluitend open source tools gebruikt:
+\begin{itemize}
+    \item \textbf{Syft}: SBOM-generatie in CycloneDX-formaat (\texttt{sbom.cdx.json})
+    \item \textbf{OWASP Dependency-Check}: Software Composition Analysis (SCA) op basis van NVD-data.
+    \item \textbf{SonarQube Community Edition}: Static Application Security Testing (SAST) en codekwaliteit.
+    \item \textbf{Grype}: Container image scanning op kwetsbaarheden.
+    \item \textbf{TruffleHog}: Secrets scanning op repository en filesystem.
+    \item \textbf{OWASP ZAP}: Dynamic Application Security Testing (DAST) op een daaiende container.
+\end{itemize}
 
 \subsection{Opzet van de testomgeving}
 
 De PoC is opgezet in een Virtuele Machine (VM) waar een Jenkins Docker container op draait, zodat de integratie van securitystappen zo realistisch mogelijk is. De volgende componenten worden gebruikt:
 \begin{itemize}
-    \item Een demo-applicatie met externe dependencies om realistische SBOMs en dependency-rapporten te kunnen genereren.
-    \item Syft als SBOM-generator, geconfigureerd om een CycloneDX-SBOM (\texttt{sbom.cdx.json}) te produceren op basis van de gecompileerde applicatie.
-    \item OWASP Dependency-Check als Software Composition Analysis (SCA)-tool, gebruikt om kwetsbaarheden in de gebruikte libraries te detecteren en een HTML-rapport te genereren.
+    \item Een Jenkins Docker-container met toegang tot Docker op de host, zodat images gebouwd en gescand kunnen worden.
+    \item Een demo-applicatie (Spring Petclinic) met externe dependencies om realistische SBOMs en dependency-rapporten te kunnen genereren.
+    \item Toegang tot het internet voor het downloaden van Syft, Grype, TruffleHog en OWASP ZAP. 
+    \item Jenkins-credentials voor een NVD API-key en een Gmail-account voor email notificaties.
 \end{itemize}
 
 Alle pipelineconfiguratie is opgeslagen in een \texttt{Jenkinsfile}, zodat wijzigingen in de beveiligingslogica versiebeheer doorlopen zoals gewone broncode.
@@ -30,7 +39,7 @@ Alle pipelineconfiguratie is opgeslagen in een \texttt{Jenkinsfile}, zodat wijzi
 
 \section{High-level pipeline-overzicht}
 
-De pipeline volgt een klassieke CI/CD-volgorde waarin de securitystappen zijn geïntegreerd als kwaliteitscontroles (zie Figuur~\ref{fig:pipleine-structuur}). Na codewijzigingen wordt de applicatie opgebouwd en getest. Vervolgens wordt een SBOM gegenereerd op basis van de gecompileerde applicatie. Daarna volgt een dependency scan uitgevoerd om bekende kwetsbaarheden in externe libraries te detecteren. Indien de scanresultaten boven de ingestelde drempel uitkomen, wordt de pipeline afgebroken en wordt een rapport gegenereerd voor de ontwikkelaars.
+De pipeline volgt een klassieke CI/CD-volgorde waarin de securitystappen zijn geïntegreerd als kwaliteitscontroles (zie Figuur~\ref{fig:pipleine-structuur}). Na codewijzigingen wordt de applicatie opgebouwd en getest en in een containerimage verpakt. Vervolgens worden in parallel meerdere securityflows uitgevoerd: SBOM-generatie en -validatie, dependency scanning, SAST, container image scanning en secrets scanning. Daarna wordt de container gestart en onderworpen aan een DAST-scan met OWASP ZAP. Indien één van de kwaliteitsdrempels wordt overschreden, faalt de pipeline en worden de resultaten als rapporten in Jenkins gepubliceerd.
 
 Deze opbouw zorgt ervoor dat securitycontroles niet losstaan van het ontwikkelproces, maar deel uitmaken van dezelfde geautomatiseerde workflow. Op die manier wordt feedback voor ontwikkelaars vroeg in het proces gegeven en blijft de impact op de bestaande werkwijze beperkt.
 
@@ -46,39 +55,162 @@ Deze opbouw zorgt ervoor dat securitycontroles niet losstaan van het ontwikkelpr
 De pipeline bestaat uit zes opeenvolgende stages die een klassieke CI/CD-workflow combineren met CRA-relevante securitycontroles:
 
 \begin{enumerate}
-    \item \textbf{Checkout}: De broncode wordt opgehaald uit de Git repository, zodat de pipeline toegang heeft tot de nieuwste wijzigingen van de ontwikkelaars.
-    
-    \item \textbf{Build}: De Java applicatie wordt gecompileerd met Maven (\texttt{mvn clean package}). Dit produceert een uitvoerbare JAR-file (\texttt{target/demo-app.jar}) die als basis dient voor de securityanalyse.
-    
-    \item \textbf{SBOM-generatie}: Een CycloneDX SBOM wordt gegenereerd met Syft op basis van de gecompileerde applicatie. Deze machine-leesbare inventaris bevat alle componenten, versies en dependencies voor CRA-compliance:
-    \begin{listing}[h]
-        \caption{Syft SBOM-generatie commando}
-        \label{lst:syft-cli}
-        \begin{minted}{bash}
-        syft packages target/demo-app.jar \
-            --exclude "platform:java" \
-            -o cyclonedx-json=sbom.cdx.json
-        \end{minted}
-        \end{listing}
-    
-    \item \textbf{Dependency scanning}: OWASP Dependency-Check voert een Software Composition Analysis (SCA) uit op de JAR en gerelateerde artifacts om kwetsbaarheden in externe libraries te detecteren:
-    \begin{listing}[h]
-        \caption{OWASP Dependency-Check SCA scan}
-        \label{lst:dependency-check-cli}
-        \begin{minted}{bash}
-        dependency-check \
-            --project "Demo App" \
-            --scan "target/" \
-            --format HTML,JSON \
-            --out "reports/" \
-            --suppression "suppressions.xml"
-        \end{minted}
-        \end{listing}
-    
-    \item \textbf{Quality Gate}: Automatische validatie controleert of het aantal hoge/kritieke kwetsbaarheden (CVSS > 7.0) nul is. Bij overschrijding faalt de pipeline en blokkeert verdere deployment.
-    
-    \item \textbf{Rapportage}: SBOM-bestanden en vulnerability-rapporten worden gearchiveerd in Jenkins. Ontwikkelaars ontvangen notificaties met links naar de gedetailleerde rapporten voor remediation.
+    \item \textbf{Checkout}: De broncode van Spring Petclinic wordt opgehaald uit de GitHub-repository, zodat de pipeline toegang heeft tot de nieuwste wijzigingen.
+    \item \textbf{Maven Build}: De Java-applicatie wordt gecompileerd met Maven (\texttt{mvn clean package -DskipTests}), wat een JAR-bestand in de \texttt{target}-map oplevert.
+    \item \textbf{Build Container Image}: Een Docker-image wordt gebouwd op basis van de gecompileerde applicatie en een Dockerfile uit de BAP-repository. Het image wordt getagd als \texttt{spring-petclinic:\$\{BUILD\_NUMBER\}}.
+    \item \textbf{Parallel Security Checks}: In deze stage worden vijf securityflows parallel uitgevoerd: SBOM Flow, Dependency-Check Flow, SonarQube Flow, Grype Container Scan en TruffleHog Secrets Scan.
+    \item \textbf{Run Container}: De eerder gebouwde container wordt gestart op poort 9090, zodat de applicatie beschikbaar is voor DAST.
+    \item \textbf{OWASP ZAP Scan}: Een OWASP ZAP-container voert een DAST-scan uit tegen de draaiende applicatie en genereert HTML- en JSON-rapporten.
+    \item \textbf{Compliance Rapport}: Een overkoepelend CRA-compliancerapport kan via Jenkins gepubliceerd worden.
+    \item \textbf{Archive Artifacts}: SBOMs, rapporten en andere relevante artefacten worden gearchiveerd als auditbewijs.
+    \item \textbf{Post Actions}: Bij fouten wordt een e-mail verstuurd, ongeacht de uitkomst worden container en image opgeruimd en de workspace opgeschoond.
 \end{enumerate}
+
+\section{Implementatie van de Jenkins-pipeline}
+
+De volledige Jenkinsfile is opgenomen in Codefragment~\ref{lst:jenkinsfile-full} en wordt hieronder functioneel toegelicht.
+\subsection{Basisconfiguratie}
+
+De pipeline draait op een generieke Jenkins-agent en definieert een omgevingsvariabele \texttt{IMAGE\_name} die gebruikt wordt om de Docker containerimage uniek te taggen op basis van het buildnummer:
+
+\begin{listing}[h]
+    \caption{Basisconfiguratie van de Jenkins-pipeline}
+    \label{lst:jenkins-env}
+    \begin{minted}{groovy}
+    pipeline {
+        agent any
+    
+        environment {
+            IMAGE_NAME = "spring-petclinic:${BUILD_NUMBER}"
+        }
+    
+        tools {
+            maven 'Maven'
+        }
+    
+        stages {
+            // Stages volgen hier...
+        }
+    }
+    \end{minted}
+\end{listing}
+
+\subsection{Build-stappen}
+
+De eerste stages implementeren de klassieke CI-stappen:
+   
+\begin{itemize}
+    \item \textbf{Checkout}: haalt de broncode van GitHub.
+    \item \textbf{Maven Build}: bouwt de JAR.
+    \item \textbf{Build Container Image}: bouwt het Docker-image op basis van de JAR en Dockerfile.
+\end{itemize}
+
+\begin{listing}[h]
+    \caption{Checkout, build en container image build}
+    \label{lst:jenkins-build}
+    \begin{minted}{groovy}
+    stage('Checkout') {
+        steps {
+            git url: 'https://github.com/spring-projects/spring-petclinic.git',
+                branch: 'main'
+            sh 'ls -a'
+        }
+    }
+    
+    stage('Maven Build') {
+        steps {
+            sh '''
+                echo "STARTING MAVEN BUILD"
+                mvn clean package -DskipTests -q
+                echo "BUILD SUCCESS"
+            '''
+        }
+    }
+    
+    stage('Build Container Image') {
+        steps {
+            sh '''
+                git clone https://github.com/EngelsIlan/BAP.git
+                echo "BUILDING DOCKER IMAGE"
+                docker build -f BAP/Docker/Dockerfile -t spring-petclinic:${BUILD_NUMBER} .
+                docker images | grep spring-petclinic
+            '''
+        }
+    }
+    \end{minted}
+\end{listing}
+
+\subsection{Parallelle securitycontroles}
+
+De stage \textbf{Parallel Security Checks} groepeert alle securitycontroles in één parallel blok, zodat de totale doorlooptijd van de pipeline beperkt blijft. Binnen deze stage worden vijf flows onderscheden.
+\subsubsection{SBOM Flow}
+
+De \textbf{SBOM Flow} genereert en valideert een CycloneDX-SBOM en controleert deze tegen de BSI TR-03183-2-richtlijnen
+
+\begin{listing}[h]
+    \caption{SBOM-generatie en validatie met Syft}
+    \label{lst:jenkins-sbom-flow}
+    \begin{minted}{groovy}
+    stage('SBOM Flow') {
+        stages {
+            stage('Generate SBOM') {
+                steps {
+                    sh '''
+                        echo "GENERATING SBOM WITH SYFT"
+    
+                        apt-get update -q
+                        apt-get install -y jq python3
+    
+                        curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b .
+    
+                        ./syft scan dir:. -o cyclonedx-json > sbom.cdx.json
+    
+                        echo "=== SBOM Preview ==="
+                        cat sbom.cdx.json | jq '.components | length'
+                        cat sbom.cdx.json | jq '.components[0:3] | .[] | {name, version}'
+                    '''
+                }
+            }
+    
+            stage('Validate & Archive SBOM') {
+                steps {
+                    sh '''
+                        echo "VALIDATING SBOM"
+                        cat sbom.cdx.json | jq empty
+    
+                        COMPONENT_COUNT=$(cat sbom.cdx.json | jq '.components | length')
+                        echo "Generated SBOM with $COMPONENT_COUNT components"
+    
+                        if [ "$COMPONENT_COUNT" -eq 0 ]; then
+                            echo "ERROR: No components found in SBOM!"
+                            exit 1
+                        fi
+                    '''
+                    archiveArtifacts artifacts: 'sbom.cdx.json,target/*.jar', fingerprint: true
+                }
+            }
+    
+            stage('SBOM Validatie (BSI TR-03183-2)') {
+                steps {
+                    catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                        sh '''
+                            cd BAP
+                            git fetch origin
+                            git reset --hard origin/main
+                            python3 validate_sbom.py ../sbom.cdx.json
+                        '''
+                    }
+                }
+            }
+        }
+    }
+    \end{minted}
+\end{listing}
+    
+
+
+
+
 
 \subsection{Configuratie van security tools}
 
