@@ -14,3 +14,34 @@
 % Heeft het onderzoek geleid tot nieuwe vragen die uitnodigen tot verder 
 %onderzoek?
 
+\section{Beantwoording van de onderzoeksvraag}
+
+De centrale onderzoeksvraag van deze bachelorproef luidde: \enquote{Hoe kan een CI/CD-pipeline geautomatiseerd worden om CRA-compliant te zijn?} Deze vraag werd benaderd via een literatuurstudie over de Cyber Resilience Act, SBOMs, CVE-analyse en DevSecOps-praktijken, gecombineerd met een Proof of Concept in de context van Excentis.
+
+Naast de centrale onderzoeksvraag worden ook een aantal deelvragen beantwoord. In het probleemdomein werd de Cyber Resilience Act toegelicht, werden de basisprincipes van CI/CD en DevSecOps besproken en werd de concrete impact voor Excentis in kaart gebracht. In het oplossingsdomein werd vervolgens onderzocht hoe een CI/CD-pipeline technisch kan worden opgebouwd, welke CRA-relevante securitycontroles geautomatiseerd kunnen worden, welke tools hiervoor beschikbaar zijn en welke technische en organisatorische uitdagingen daarbij optreden.
+
+Op basis van de resultaten van de PoC kan geconcludeerd worden dat CRA-relevante securitycontroles in belangrijke mate geautomatiseerd kunnen worden binnen een CI/CD-pipeline. De ontwikkelde Jenkins-pipeline genereert een SBOM, voert dependency-scans, SAST, container image scanning, secrets scanning en DAST uit en archiveert de resultaten als auditbewijs. Kwetsbaarheden met een hoge CVSS-score blokkeren de pipeline via quality gates, waardoor releases met kritieke risico's niet ongemerkt kunnen doorglippen. Volledige CRA-compliance kan hiermee echter nog niet \emph{gegarandeerd} worden: er blijft een menselijke controle nodig voor onder meer het controleren van false positives, het beoordelen van contextafhankelijke risico's en het aanleveren van aanvullende gegevens zoals de SHA-512-hash van het deployable component in de SBOM.
+
+\section{Belangrijkste bevindingen}
+
+Een eerste belangrijke bevinding uit de literatuurstudie is dat de bouwstenen voor geautomatiseerde CRA-compliance in CI/CD-pipelines in grote mate reeds bestaan. Open source tools zoals Syft, OWASP Dependency-Check, Grype, SonarQube en OWASP ZAP dekken samen een groot deel van de vereiste controles, terwijl de CRA zelf vooral high-level verplichtingen formuleert en geen concreet technisch stappenplan oplegt. Tegelijk is er nog geen eenduidige, gestandaardiseerde aanpak om deze vereisten rechtstreeks naar de pipeline-stappen te vertalen.
+
+Een tweede bevinding is dat de geïntegreerde Jenkins-pipeline in deze bachelorproef aantoont dat een combinatie van SBOM-generatie, SCA, SAST, container scanning, secrets scanning en DAST technisch haalbaar is zonder de bestaande ontwikkelworkflow fundamenteel te verstoren. De referentierun met Spring Petclinic toont dat de totale doorlooptijd (7 minuten en 28 seconden) aanvaardbaar blijft, terwijl meerdere kwetsbaarheden en validatieproblemen automatisch worden opgespoord en gerapporteerd.
+
+Ten slotte blijkt uit de resultaten dat automatisering nooit alle complexiteit wegneemt. False positives, onvolledige of inconsistente CPE-data in kwetsbaarheidsdatabanken en de afweging tussen risico en businessimpact blijven domeinen waar menselijke expertise noodzakelijk is. De pipeline kan signaleren en blokkeren, maar iemand moet nog steeds bewuste beslissingen nemen over uitzonderingen en remediatie.
+
+\section{Praktische meerwaarde voor Excentis}
+
+Voor Excentis levert deze bachelorproef een concrete referentie-implementatie op waarmee het bedrijf de eerste stappen richting CRA-compliance kan zetten. De uitgewerkte Jenkins-pipeline sluit aan bij de bestaande tooling, maakt gebruik van uitsluitend open source componenten en toont hoe SBOM-generatie, kwetsbaarheidsscans en rapportage geïntegreerd kunnen worden in één geautomatiseerde workflow.
+
+De pipeline biedt ontwikkelteams vroegtijdige feedback over kwetsbaarheden in code, dependencies en containerimages, terwijl management inzicht krijgt in de securitystatus via rapporten en archiveringsmechanismen. Daarmee beantwoordt de oplossing rechtstreeks aan de in de requirementsanalyse geformuleerde noden: tijd- en kostenbesparing door automatisering, systematische rapportering in plaats van ad-hoc-communicatie en een herbruikbaar framework dat op meerdere projecten kan worden toegepast.
+
+\section{Beperkingen en toekomstig onderzoek}
+
+Ondanks de positieve resultaten kent deze bachelorproef belangrijke beperkingen. De PoC is concreet uitgewerkt voor één Java-gebaseerde demo-applicatie en ontworpen om ook uitbreidbaar te zijn naar .NET- en Python-projecten met een geselecteerde set tools die eenvoudig in Jenkins te integreren zijn. Multi-repo-omgevingen, microservice-architecturen en complexe releaseketens werden niet onderzocht. De koppeling tussen SBOMs en CVE-databases is slechts gedeeltelijk geautomatiseerd: het valideren van SBOM-kwaliteit tegen BSI TR-03183-2 en het verrijken met onder meer hashwaarden vereist nog bijkomend werk.
+
+Daarnaast blijft de menselijke factor cruciaal. False positives in SCA- en container-scanners, contextafhankelijke risico-inschattingen en het opstellen van organisatiebrede policies rond vulnerability-acceptatie en retentie van bewijsmateriaal kunnen niet louter aan tools worden overgelaten. Zonder duidelijke processen en verantwoordelijkheden bestaat het risico dat waarschuwingen genegeerd worden of dat rapporten niet structureel worden opgevolgd.
+
+Tot slot roept dit onderzoek nieuwe vragen op over de keuze tussen een open source-gebaseerde aanpak en commerciële all-in-one-platformen zoals Snyk of Aikido Security, die in de literatuurstudie werden besproken. Open source tools bieden maximale controle, flexibiliteit en geen licentiekost, maar vragen meer integratie- en onderhoudsinspanning. Commerciële platforms kunnen daarentegen unified dashboards, betere prioritering en lagere false-positive-ratio's bieden, maar brengen licentiekosten en vendor lock-in met zich mee. Verdiepend onderzoek kan nagaan welk model, of welke hybride combinatie, op lange termijn het meest geschikt is voor een organisatie zoals Excentis.
+
+Samengevat toont deze bachelorproef aan dat een CI/CD-pipeline een belangrijke hefboom kan zijn om CRA-compliance te ondersteunen, maar dat volledige naleving alleen bereikt wordt wanneer geautomatiseerde securitycontroles hand in hand gaan met duidelijke processen, menselijke expertise en weloverwogen technologische keuzes.

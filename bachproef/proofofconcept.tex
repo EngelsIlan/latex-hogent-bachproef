@@ -4,7 +4,6 @@
 
 \chapter{\IfLanguageName{dutch}{Proof of Concept}{Proof of Concept}}%
 \label{ch:Proof of Concept}
-
 \section{Doel en Scope}
 De Proof of Concept (PoC) heeft als doel aan te tonen hoe een bestaande CI/CD-pipeline kan worden uitgebreid met CRA-relevante securitycontroles, zonder het ontwikkelproces volledig te hertekenen. De focus ligt op twee kernactiviteiten: het genereren van een Software Bill of Materials (SBOM) en het automatisch uitvoeren van dependency scanning met een duidelijke kwaliteitsdrempel (quality gate) op basis van CVSS-scores. Daarnaast werden aanvullende controles geïntegreerd, zoals SAST, container image scanning, secrets scanning en DAST, om een volledig productiewaardige DevSecOps-pipeline te verkrijgen. Dit vormt een referentie-implementatie die door Excentis-teams kan worden overgenomen en in bestaande ontwikkelworkflows kan worden geïntegreerd.
 
@@ -46,7 +45,9 @@ Deze opbouw zorgt ervoor dat securitycontroles niet losstaan van het ontwikkelpr
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{../graphics/pipeline-structuur.png}
-    \caption{Structuur van een CRA-compliant CI/CD-pijplijn.}
+    \caption[Overzicht Jenkins-pipeline]{High-level overzicht van de Jenkins-pipeline. Blauwe pijlen tonen het
+    sequentiële verloop van de stages, rode pijlen tonen welke artefacten (SBOM,
+    scanrapporten, e-mail) in elke stap worden geproduceerd en verzameld.}
     \label{fig:pipleine-structuur}
 \end{figure}
 
@@ -106,8 +107,8 @@ De eerste stages implementeren de klassieke CI-stappen:
 \end{itemize}
 
 \begin{listing}[h]
-    \caption{Checkout, build en container image build}
-    \label{lst:jenkins-build}
+    \caption{Checkout-stage in Jenkins pipeline}
+    \label{lst:checkout}
     \begin{minted}{groovy}
     stage('Checkout') {
         steps {
@@ -116,7 +117,13 @@ De eerste stages implementeren de klassieke CI-stappen:
             sh 'ls -a'
         }
     }
-    
+    \end{minted}
+  \end{listing}
+  
+  \begin{listing}[h]
+    \caption{Maven build-stage}
+    \label{lst:maven-build}
+    \begin{minted}{groovy}
     stage('Maven Build') {
         steps {
             sh '''
@@ -126,7 +133,13 @@ De eerste stages implementeren de klassieke CI-stappen:
             '''
         }
     }
-    
+    \end{minted}
+  \end{listing}
+  
+  \begin{listing}[h]
+    \caption{Build container image-stage}
+    \label{lst:build-image}
+    \begin{minted}{groovy}
     stage('Build Container Image') {
         steps {
             sh '''
@@ -138,7 +151,9 @@ De eerste stages implementeren de klassieke CI-stappen:
         }
     }
     \end{minted}
-\end{listing}
+  \end{listing}
+
+\FloatBarrier
 
 \subsection{Parallelle securitycontroles}
 
@@ -147,57 +162,188 @@ De stage \textbf{Parallel Security Checks} groepeert alle securitycontroles in �
 
 De \textbf{SBOM Flow} genereert en valideert een CycloneDX-SBOM en controleert deze tegen de BSI TR-03183-2-richtlijnen
 
+\begin{listing}[H]
+    \caption{Generate SBOM-stage in Jenkins pipeline}
+    \label{lst:sbom-generate}
+    \begin{minted}[fontsize=\footnotesize]{groovy}
+  stage('Generate SBOM') {
+      steps {
+          sh '''
+              echo "GENERATING SBOM WITH SYFT"
+  
+              apt-get update -q
+              apt-get install -y jq python3
+  
+              curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b .
+  
+              ./syft scan dir:. -o cyclonedx-json > sbom.cdx.json
+  
+              echo "=== SBOM Preview ==="
+              cat sbom.cdx.json | jq '.components | length'
+              cat sbom.cdx.json | jq '.components[0:3] | .[] | {name, version}'
+          '''
+      }
+  }
+    \end{minted}
+\end{listing}    
+
+\begin{listing}[H]
+    \caption{Validate \& archive SBOM-stage}
+    \label{lst:sbom-validate-archive}
+    \begin{minted}[fontsize=\footnotesize]{groovy}
+  stage('Validate & Archive SBOM') {
+      steps {
+          sh '''
+              echo "VALIDATING SBOM"
+              cat sbom.cdx.json | jq empty
+  
+              COMPONENT_COUNT=$(cat sbom.cdx.json | jq '.components | length')
+              echo "Generated SBOM with $COMPONENT_COUNT components"
+  
+              if [ "$COMPONENT_COUNT" -eq 0 ]; then
+                  echo "ERROR: No components found in SBOM!"
+                  exit 1
+              fi
+          '''
+          archiveArtifacts artifacts: 'sbom.cdx.json,target/*.jar', fingerprint: true
+      }
+  }
+    \end{minted}
+\end{listing}
+
+\begin{listing}[H]
+    \caption{BSI TR-03183-2 SBOM-validatiestage}
+    \label{lst:sbom-bsi-validate}
+    \begin{minted}[fontsize=\footnotesize]{groovy}
+  stage('SBOM Validatie (BSI TR-03183-2)') {
+      steps {
+          catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+              sh '''
+                  cd BAP
+                  git fetch origin
+                  git reset --hard origin/main
+                  python3 validate_sbom.py ../sbom.cdx.json
+              '''
+          }
+      }
+  }
+    \end{minted}
+\end{listing}
+
+\FloatBarrier
+
+\subsubsection{Dependency-Check Flow}
+De \textbf{Dependency-Check Flow} automatiseert SCA op de gebouwde JAR met OWASP Dependency-Check. Dit gebruikt ook een NVD API-key, wat de tijd van het downloaden van de NVD database vermindert met 30 minuten (van 40 naar 10 minuten). Deze API key is gratis te verkrijgen op de site van NVD.
+\begin{listing}[H]
+    \caption{Dependency-Check scan-stage in Jenkins pipeline}
+    \label{lst:dependency-check-scan}
+    \begin{minted}[fontsize=\footnotesize]{groovy}
+stage('Dependency Check scan') {
+    steps {
+        withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_API_KEY')]) {
+            catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                sh '''
+                    echo "STARTING OWASP DEPENDENCY-CHECK SCAN"
+                    curl -L https://github.com/dependency-check/DependencyCheck/releases/download/v12.1.0/dependency-check-12.1.0-release.zip -o dependency-check.zip
+                    unzip -q dependency-check.zip
+
+                    ./dependency-check/bin/dependency-check.sh \
+                        --project "spring-petclinic" \
+                        --scan ./target/spring-petclinic-4.0.0-SNAPSHOT.jar \
+                        --format HTML \
+                        --format JSON \
+                        --out ./dependency-check-report \
+                        --disableOssIndex \
+                        --nvdApiKey $NVD_API_KEY \
+                        --failOnCVSS 7
+                '''
+            }
+        }
+    }
+}
+    \end{minted}
+\end{listing}
+
+\begin{listing}[H]
+    \caption{Publish Dependency Report-stage in Jenkins pipeline}
+    \label{lst:dependency-check-publish}
+    \begin{minted}[fontsize=\footnotesize]{groovy}
+stage('Publish Dependency Report') {
+    steps {
+        publishHTML(target: [
+            allowMissing: false,
+            alwaysLinkToLastBuild: true,
+            keepAll: true,
+            reportDir: 'dependency-check-report',
+            reportFiles: 'dependency-check-report.html',
+            reportName: 'OWASP Dependency-Check Report'
+        ])
+        archiveArtifacts artifacts: 'dependency-check-report/**', fingerprint: true
+    }
+}
+    \end{minted}
+\end{listing}
+
+\subsubsection{SonarQube Flow}
+
+De \textbf{SonarQube Flow} verzorgt SAST en quality gate-controle.
+
 \begin{listing}[h]
-    \caption{SBOM-generatie en validatie met Syft}
-    \label{lst:jenkins-sbom-flow}
+    \caption{SonarQube scan en quality gate}
+    \label{lst:jenkins-sonarqube}
     \begin{minted}{groovy}
-    stage('SBOM Flow') {
+    stage('SonarQube Flow') {
         stages {
-            stage('Generate SBOM') {
+            stage('SonarQube Scan') {
+                steps {
+                    withSonarQubeEnv('SonarQube') {
+                        sh '''
+                            mvn sonar:sonar \
+                                -Dsonar.projectKey=spring-petclinic \
+                                -Dsonar.projectName="Spring Petclinic" \
+                                -Dsonar.java.binaries=target/classes \
+                                -q
+                        '''
+                    }
+                }
+            }
+    
+            stage('Quality Gate') {
+                steps {
+                    timeout(time: 15, unit: 'MINUTES') {
+                        waitForQualityGate abortPipeline: true
+                    }
+                }
+            }
+        }
+    }
+    \end{minted}
+\end{listing}
+\FloatBarrier
+
+\subsubsection{Grype Container Scan}
+De \textbf{Grype Container Scan} richt zich op kwetsbaarheden in de containerimage.
+
+\begin{listing}[h]
+    \caption{Container image scanning met Grype}
+    \label{lst:jenkins-grype}
+    \begin{minted}{groovy}
+    stage('Grype Container Scan') {
+        stages {
+            stage('Install Grype') {
                 steps {
                     sh '''
-                        echo "GENERATING SBOM WITH SYFT"
-    
-                        apt-get update -q
-                        apt-get install -y jq python3
-    
-                        curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b .
-    
-                        ./syft scan dir:. -o cyclonedx-json > sbom.cdx.json
-    
-                        echo "=== SBOM Preview ==="
-                        cat sbom.cdx.json | jq '.components | length'
-                        cat sbom.cdx.json | jq '.components[0:3] | .[] | {name, version}'
+                        curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b .
                     '''
                 }
             }
     
-            stage('Validate & Archive SBOM') {
-                steps {
-                    sh '''
-                        echo "VALIDATING SBOM"
-                        cat sbom.cdx.json | jq empty
-    
-                        COMPONENT_COUNT=$(cat sbom.cdx.json | jq '.components | length')
-                        echo "Generated SBOM with $COMPONENT_COUNT components"
-    
-                        if [ "$COMPONENT_COUNT" -eq 0 ]; then
-                            echo "ERROR: No components found in SBOM!"
-                            exit 1
-                        fi
-                    '''
-                    archiveArtifacts artifacts: 'sbom.cdx.json,target/*.jar', fingerprint: true
-                }
-            }
-    
-            stage('SBOM Validatie (BSI TR-03183-2)') {
+            stage('Scan Container Image') {
                 steps {
                     catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                         sh '''
-                            cd BAP
-                            git fetch origin
-                            git reset --hard origin/main
-                            python3 validate_sbom.py ../sbom.cdx.json
+                            echo "SCANNING CONTAINER IMAGE WITH GRYPE"
+                            ./grype ${IMAGE_NAME} --fail-on high -o table
                         '''
                     }
                 }
@@ -206,79 +352,149 @@ De \textbf{SBOM Flow} genereert en valideert een CycloneDX-SBOM en controleert d
     }
     \end{minted}
 \end{listing}
-    
+\FloatBarrier
 
+\subsubsection{TruffleHog Secrets Scan}
+De \textbf{TruffleHog Secrets Scan} detecteert gelekte secrets (zoals wachtwoorden, API-keys,...) in repository en filesystems.
 
-
-
-
-\subsection{Configuratie van security tools}
-
-\textbf{Syft configuratie} in de Jenkinsfile voor de generatie van een SBOM in JSON formaat:
 \begin{listing}[h]
-    \caption{Syft SBOM-generatie in Jenkins pipeline}
-    \label{lst:syft-jenkins}
+    \caption{Secrets scanning met TruffleHog}
+    \label{lst:jenkins-trufflehog}
     \begin{minted}{groovy}
-    stage('SBOM Generation') {
-        steps {
-            sh '''
-                syft packages target/demo-app.jar \\
-                    --exclude "platform:java" \\
-                    -o cyclonedx-json=sbom.cdx.json
-                archiveArtifacts 'sbom.cdx.json'
-            '''
-        }
-    }
-    \end{minted}
-    \end{listing}
-
-\textbf{OWASP Dependency-Check configuratie} om de SBOM te controleren op CVEs:
-\begin{listing}[h]
-    \caption{Dependency-Check scan in Jenkins pipeline}
-    \label{lst:dependency-jenkins}
-    \begin{minted}{groovy}
-    stage('Dependency Scan') {
-        steps {
-            sh '''
-                dependency-check \\
-                    --project "Demo App" \\
-                    --scan "target/" \\
-                    --format HTML,JSON \\
-                    --out "reports/" \\
-                    --suppression "suppressions.xml"
-            '''
-            archiveArtifacts artifacts: 'reports/**', allowEmptyArchive: true
-        }
-    }
-    \end{minted}
-    \end{listing}
-
-\subsection{Quality Gate implementatie}
-
-De quality gate analyseert het scanrapport en blokkeert de pipeline indien er kwetsbaarheden met CVSS-score > 7.0 aanwezig zijn:
-\begin{listing}[h]
-    \caption{Quality Gate CVSS-controle}
-    \label{lst:quality-gate}
-    \begin{minted}{groovy}
-    stage('Quality Gate') {
-        steps {
-            script {
-                def criticalVulns = sh(
-                    script: 'grep -c "CVSS: [7-9]" reports/dependency-check-report.json || true',
-                    returnStdout: true
-                ).trim()
-                
-                if (criticalVulns.toInteger() > 0) {
-                    error "Kritieke kwetsbaarheden gedetecteerd: ${criticalVulns}"
+    stage('TruffleHog Secrets Scan') {
+        stages {
+            stage('Install TruffleHog'){
+                steps {
+                    sh '''
+                        echo "SCANNING FOR SECRETS WITH TRUFFLEHOG"
+                        curl -sSfL https://raw.githubusercontent.com/trufflesecurity/trufflehog/main/scripts/install.sh | sh -s -- -b .
+                    '''
+                }
+            }
+            
+            stage('Scan for Secrets') {
+                steps {
+                    catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                        sh '''
+                            ./trufflehog git file://. --only-verified --fail --json > trufflehog-report.json || true
+                        '''
+                    }
+                    archiveArtifacts artifacts: 'trufflehog-report.json', fingerprint: true
                 }
             }
         }
     }
     \end{minted}
-    \end{listing}
+\end{listing}
+\FloatBarrier
+\subsection{Runtime en DAST}
 
-Deze implementatie zorgt ervoor dat alleen code zonder hoge of kritieke kwetsbaarheden door de pipeline raakt, terwijl SBOMs automatisch worden gegenereerd en gearchiveerd voor compliance-doeleinden.%De pipeline is geïmplementeerd als een declaratieve Jenkins pipeline met de volgende stages:
+Na de parallelle securitychecks volgt de runtime- en DAST-fase.
 
+\begin{listing}[h]
+    \caption{Run container}
+    \label{lst:Run-container}
+    \begin{minted}{groovy}
+    stage('Run Container') {
+        steps {
+            sh '''
+                echo "RUNNING CONTAINER"
+                docker rm -f spring-petclinic || true
+                docker run -d --name spring-petclinic -p 9090:8080 ${IMAGE_NAME}
+                sleep 20
+                docker ps
+                docker logs spring-petclinic | tail -n 50
+            '''
+        }
+    }
+\end{minted}
+\end{listing}
+
+\begin{listing}
+    \caption{OWASP ZAP Scan}
+    \label{lst:OWASP-ZAP-Scan}
+    \begin{minted}{groovy}
+    stage('OWASP ZAP Scan') {
+        steps {
+            catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                sh '''
+                    echo "STARTING OWASP ZAP DAST SCAN"
+                    mkdir -p zap-report
+                    chmod 777 zap-report
+                    docker ps
+    
+                    HOST_PATH=$(docker inspect $(hostname) --format='{{ range .Mounts }}{{ if eq .Destination "/var/jenkins_home" }}{{ .Source }}{{ end }}{{ end }}')/workspace/test_pipeline/zap-report
+    
+                    docker run --rm \
+                        --add-host=host.docker.internal:host-gateway \
+                        -v ${HOST_PATH}:/zap/wrk:rw \
+                        -u root \
+                        ghcr.io/zaproxy/zaproxy:stable \
+                        zap-baseline.py \
+                            -t http://host.docker.internal:9090 \
+                            -r zap-report.html \
+                            -J zap-report.json \
+                            -d \
+                            -I
+    
+                    chmod -R 777 zap-report
+                    ls -la zap-report
+                '''
+            }
+    \end{minted}
+\end{listing}
+
+\begin{listing}
+    \caption{Publish ZAP Report}
+    \label{lst:publish-zap-report}
+    \begin{minted}{groovy}
+            publishHTML(target: [
+                allowMissing: true,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'zap-report',
+                reportFiles: 'zap-report.html',
+                reportName: 'OWASP ZAP DAST Report'
+            ])
+            archiveArtifacts artifacts: 'zap-report/**', fingerprint: true
+        }
+    }
+    \end{minted}
+\end{listing}
+\FloatBarrier
+
+\subsection{Compliance-rapportage, archivering en post-conditions}
+De stage \textbf{Compliance Rapport} publiceert een gegenereerd CRA-compliancerapport (indien aanwezig) via \texttt{publishHTML}. In de stage \textbf{Archive Artifacts} worden de belangrijkste outputs (SBOM, Compliance Rapport en gerelateerde bestanden) gebundeld en gearchiveerd.
+\begin{listing}[h]
+    \caption{Compliance-rapport en archiveren van artefacten}
+    \label{lst:jenkins-compliance-archive}
+    \begin{minted}{groovy}
+    stage('Compliance Rapport') {
+        steps {
+            publishHTML(target: [
+                allowMissing: true,
+                alwaysLinkToLastBuild: true,
+                keepAll: true,
+                reportDir: 'compliance-report',
+                reportFiles: 'compliance-report.html',
+                reportName: 'CRA Compliance Rapport'
+            ])
+        }
+    }
+    
+    stage('Archive Artifacts') {
+        steps {
+            archiveArtifacts artifacts: '''
+                sbom.cdx.json,
+                compliance-report/**,
+            ''', fingerprint: true
+        }
+    }
+    \end{minted}
+\end{listing}
+\FloatBarrier
+
+In de \textbf{post}-sectie worden ten slotte failure notificaties en cleanup afgehandeld. Bij een mislukte build wordt een Python-script uit de BAP-repository aangeroepen dat een e-mail verstuurt met informatie over de mislukte job. Ongeacht het resultaat worden de draaiende container en het Docker-image verwijderd en wordt de workspace opgeschoond, zodat de volgende builds in een propere omgeving starten.
 %\begin{verbatim}
 %pipeline {
 %    agent any
@@ -330,8 +546,67 @@ Hoewel algemene DevSecOps-praktijken goed gedocumenteerd zijn, blijven er specif
 
 
 \section{Resultaten van de PoC}
-% TODO
+In dit hoofdstuk worden de resultaten van de Proof of Concept beschreven.
+De focus ligt op het gedrag van de Jenkins-pipeline in een representatieve run met de Spring Petclinic-applicatie. Deze run wordt gebruikt als referentie om na te gaan of de beoogde securitycontroles effectief geïntegreerd zijn in de CI/CD-workflow en of de quality gates rond kwetsbaarheden correct functioneren.
 
+\subsection{Referentierun met Spring Petclinic}
+
+Als referentiescenario werd een build uitgevoerd op de \texttt{main}-branch van Spring Petclinic. De volledige Jenkins-pipeline doorliep hierbij alle geconfigureerde stages: van \texttt{Checkout} en \texttt{Maven Build} over \texttt{Build Container Image} tot en met de parallelle securitycontroles, runtime-stappen en archivering van artefacten.
+
+De run toont aan dat de pipeline de verschillende securitytools in de juiste volgorde en met de juiste input aanroept. Eerst wordt een containerimage opgebouwd op basis van de gecompileerde JAR, waarna in de stage \texttt{Parallel Security Checks} de SBOM-generatie, dependency scanning, SAST, container image scanning en secrets scanning parallel worden uitgevoerd. Vervolgens wordt de container gestart en via OWASP ZAP aan een DAST-scan onderworpen, waarna de belangrijkste rapporten als HTML en JSON beschikbaar zijn in Jenkins voor verdere analyse.
+
+Figuur~\ref{fig:jenkins-run-overview} toont het stage-overzicht van de pipeline voor deze run. De klassieke CI-stappen (\texttt{Tool Install}, \texttt{Checkout}, \texttt{Maven Build} en \texttt{Build Container Image}) slagen zonder fouten, waarna de parallelle securityflows, runtime-stappen en archivering worden uitgevoerd.
+
+De totale doorlooptijd van deze run bedroeg 7 minuten en 28 seconden.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{../graphics/jenkins-run-overview.png}
+    \caption{Overzicht van de Jenkins-pipeline voor de referentierun van Spring Petclinic.}
+    \label{fig:jenkins-run-overview}
+\end{figure}
+
+\subsubsection{Securitybevindingen per tool}
+De referentierun laat zien dat de verschillende securityflows effectief problemen detecteren in de applicatie en containerimage. In de stage \texttt{Parallel Security Checks} zijn drie stappen als fout gemarkeerd: \texttt{Dependency Check Scan}, \texttt{SBOM Validatie (BSI TR-03183-2)} en \texttt{Scan Container Image}. Deze failures duiden op gevonden kwetsbaarheden of validatieproblemen, terwijl de andere securityflows (SonarQube, SBOM-generatie, TruffleHog) succesvol afronden.
+
+\begin{enumerate}
+    \item \textbf{SBOM Flow}: De validatiestap \texttt{SBOM Validatie (BSI TR-03183-2)} faalde in deze run, wat aantoont dat het validatiescript effectief afwijkingen in de SBOM kan detecteren en de pipeline daarop kan blokkeren.
+    \item \textbf{Dependency-Check Flow}: In de referentierun markeerde OWASP Dependency-Check de stage \texttt{Dependency Check Scan} als fout, omdat minstens één kwetsbaarheid de ingestelde CVSS-drempel van 7.0 overschreed.
+    \item \textbf{Grype Container Scan}: Ook de stap \texttt{Scan Container Image} werd als fout gemarkeerd, doordat Grype kwetsbaarheden met een te hoge ernstgraad in het containerimage rapporteerde.
+\end{enumerate}
+
+Dankzij het gebruik van \texttt{catchError} in de meeste securitystappen kan de pipeline ondanks deze failures verderlopen tot \texttt{Run Container}, \texttt{OWASP ZAP Scan}, \texttt{Compliance Rapport} en \texttt{Archive Artifacts} zodat alle relevante rapporten en artefacten na afloop van de run beschikbaar zijn in Jenkins.
+
+\subsection{Referentierun simpele Python-applicatie}
+
+\subsection{Referentierun simpele .NET-applicatie}
 
 \section{Evaluatie van de PoC}
-% TODO
+
+\subsection{Beantwoording van doel en scope}
+
+De centrale onderzoeksvraag van deze bachelorproef was hoe een CI/CD-pipeline CRA-compliance kan verzekeren. De gerealiseerde Proof of Concept toont aan dat dit haalbaar is en dat bestaande open source tools al een groot deel van de vereiste functionaliteit afdekken.
+
+De belangrijkste doelstellingen uit Sectie~\ref{ch:Proof of Concept} werden behaald. SBOM-generatie en dependency-scanning zijn geïntegreerd als vaste stappen in de pipeline, aangevuld met SAST, container image scanning, secrets scanning en DAST. De referentierun laat zien dat deze controles automatisch worden uitgevoerd bij elke build en dat kwetsbaarheden de pipeline effectief kunnen blokkeren via quality gates. Tegelijk blijft de totale doorlooptijd (7 minuten en 28 seconden) binnen een aanvaardbare grens voor dagelijks gebruik voor ontwikkelaars.
+
+\subsection{Mate van CRA-dekking}
+
+Hoewel de CRA geen concrete technische implementatie voorschrijft, kan de gerealiseerde pipeline worden getoetst aan een aantal kernvereisten. Ten eerste draagt de SBOM Flow bij aan de eis om voor elk softwareproduct een actuele en voldoende gedetailleerde SBOM bij te houden. De combinatie van Syft en het BSI TR-03183-2-validatiescript zorgt ervoor dat SBOMs in CycloneDX-formaat worden aangemaakt en dat lege of structureel ongeldige bestanden geweigerd worden.
+
+Ten tweede ondersteunen de Dependency-Check Flow en de Grype Container Scan de CRA-verwachtingen rond systematische vulnerability management. Kwetsbaarheden in zowel libraries als containerimages worden automatisch opgespoord en gekoppeld aan een drempel op basis van CVSS-scores. Zodra deze drempel wordt overschreden, markeert de pipeline de build als \texttt{UNSTABLE}, waardoor uitrol van een kwetsbare versie expliciet moet worden gemotiveerd of geblokkeerd.
+
+Ten derde zorgen de archiveringsstappen in het optionele compliancerapport ervoor dat SBOMs, scanresultaten en overkoepelende bevindingen per build worden opgeslagen. Dit vormt een eerste invulling van de CRA-eis om bewijs van de conformiteit en vulnerability handling over een langere periode beschikbaar te houden, ook al is er nog geen volwaardige policy-engine of formele auditworkflow geïmplementeerd.
+
+\subsection{Technische en organisatorische impact}
+
+Technisch gezien bevestigt de PoC dat meerdere open source securitytools in één Jenkins-pipeline kunnen worden samengebracht zonder ingrijpende wijzigingen aan de bestaande buildketen. De integratie via een \texttt{Jenkinsfile} maakt het bovendien mogelijk om wijzigingen in de securitylogica te versioneren en via code reviews te beheren, wat goed aansluit bij de DevSecOps-praktijken.
+
+Tegelijk toont de PoC aan dat er onvermijdelijk extra runtime en ruis wordt geïntroduceerd. SBOM-generatie, SCA, SAST, container scanning en DAST voegen gezamenlijk meerdere minuten toe aan elke build, en tools zoals Dependency-Check en Grype kunnen false positives rapporteren die manuele triage vereisen. Organisatorisch betekent dit dat teams niet alleen tooling moeten voorzien, maar ook processen rond interpretatie van resultaten, ownership van vulnerabilities en het documenteren van bewuste acceptaties.
+
+\subsection{Beperkingen en toekomstige uitbreiding}
+
+De huidige PoC is bewust beperkt gebleven in scope. Ze richt zich concreet één Java-gebaseerde demo-applicatie (maar is ook ontworpen om .NET- en Python-projecten te ondersteunen) en een beperkte set van tools die gemakkelijk in een Jenkins-omgeving te integreren zijn. Multi-repo scenario's, complexe microservice-landschappen en geautomatiseerde beslissingslogica op basis van SBOMs en externe CVE-feeds vallen buiten deze implementatie en blijven dus een open werkpunt.
+
+Daarnaast is ook de CRA-dekking nog niet volledig. Zo ontbreekt een gestandaardiseerde CRA-checklist voor pipelines en wordt de koppeling tussen SBOMs en CVE-databases nog slechts gedeeltelijk geautomatiseerd.
+
+De huidige PoC vormt een eerste referentie-implementatie voor een CRA-geïnspireerde CI/CD-pipeline binnen Excentis. De teams binnen Excentis kunnen deze pipeline gebruiken als grondslag en ze verder aanpassen aan hun eigen technologie-stacks, risicoprofiel en procesvereisten toe te voegen of strengere policyregels rond false positives en uitzonderingen te definiëren.
