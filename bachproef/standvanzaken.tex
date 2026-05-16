@@ -130,7 +130,7 @@ Dit moet dan ook voldoen aan volgende minimumeisen (BSI TR-03183-2):
 \begin{table}[H]
   \centering
   \caption{BSI TR-03183-2: Vereiste SBOM data fields \autocite{BSI2025}}
-  \begin{tabular}{|p{3cm}|p{8cm}|}
+  \begin{tabular}{|p{4.2cm}|p{8cm}|}
     \hline
     \textbf{Data field} & \textbf{Description} \\
     \hline
@@ -161,7 +161,7 @@ cpe:2.3:part:vendor:product:version:update:edition:lang:sw\_edition:
             target\_sw:target\_hw:other
 \end{verbatim}
 
-De matching-flow verloopt als volgt \autocite{NVD_API}:
+De matching-flow is geïllustreerd in~\ref{fig:cpe-matching-flow}:
 
 %\begin{enumerate}
 %    \item SBOM/dependency scan produceert lijst van componenten (naam en versie)
@@ -187,14 +187,16 @@ De matching-flow verloopt als volgt \autocite{NVD_API}:
   \draw[arrow] (match) -- (result);
   
   \end{tikzpicture}
-  \caption{Matching-flow SBOM naar CVE-detectie via NVD CPE-matching}
+  \caption{Matching-flow SBOM naar CVE-detectie via NVD CPE-matching \autocite{NVD_API}}
   \label{fig:cpe-matching-flow}
 \end{figure}
+\FloatBarrier
+
 Deze CPE-matching maakt geautomatiseerde vulnerability detection mogelijk in CI/CD pipelines.
 
 \subsection{Dependency scanning tools}
 
-Dependency scanning tools zijn tools die detectie van kwetsbare componenten in de software supply chains kunnen automatiseren door lockfiles en manifests te analyseren \autocite{Aikido2024}. Aangezien Jenkins het meest gebruikte CI/CD-platform is binnen de Excentis-omgevingen waar deze Proof of Concept wordt ontwikkeld, is er dan ook gekozen voor de \autocite{OWASPDependencyCheckPlugin} OWASP Dependency-check Jenkins plugin te gebruiken. Andere gekende open source voorbeelden hiervan zijn Dependabot (GitHub) en Snyk CLI, die beide de NVD-data en proprietary vulnerability databases combineren.
+Dependency scanning tools zijn tools die detectie van kwetsbare componenten in de software supply chains kunnen automatiseren door lockfiles en manifests te analyseren \autocite{Aikido2024}. Aangezien Jenkins het meest gebruikte CI/CD-platform is binnen de Excentis-omgevingen waar deze Proof of Concept wordt ontwikkeld, is er dan ook gekozen voor de OWASP Dependency-check Jenkins plugin te gebruiken \autocite{OWASPDependencyCheckPlugin}. Andere gekende open source voorbeelden hiervan zijn Dependabot (GitHub) en Snyk CLI, die beide de NVD-data en proprietary vulnerability databases combineren.
 
 OWASP Dependency-Check scant alle populaire package managers (Maven, npm, pip, etc.) en genereert rapporten in HTML, XML en JSON formaten. De plugin integreert naadloos in Jenkins pipelines en kan builds laten falen bij kritieke vulnerabilities \autocite{OWASP2024}.
 
@@ -215,6 +217,7 @@ De \textbf{Base Score} berekent intrinsieke eigenschappen via 11 metrics:
     \item \textbf{Attack Requirements (AT)}: nieuw in v4.0
 \end{itemize}
 
+Vervolgens, geïllustreerd is de verschillende scores met bijhorend level in~\ref{tab:cvss-v4-scores}
 \begin{table}[H]
   \centering
   \caption{CVSS v4.0 Base Score severity niveaus}
@@ -235,7 +238,7 @@ De \textbf{Base Score} berekent intrinsieke eigenschappen via 11 metrics:
 In de Jenkins pipeline zal CVSS v4.0-scores gebruikt worden om builds te blokkeren bij HIGH/CRITICAL vulnerabilities (≥7.0).
 \subsection{DAST-tools}
 
-DAST-tools voeren dynamische security testing uit op runtime-applicaties, waarbij ze zich gedaragen als een externe aanvaller die probeert kwetsbaarheden te exploiteren. Verschillende studies evalueerden DAST-tools op basis van detectiecapaciteiten, false positive ratio en CI/CD-integratie \autocite{AIMultipleDAST2025,AppSecSanta2025}.
+DAST-tools voeren dynamische security testing uit op runtime-applicaties, waarbij ze zich gedragen als een externe aanvaller die probeert kwetsbaarheden te exploiteren. Verschillende studies evalueerden DAST-tools op basis van detectiecapaciteiten, false positive ratio en CI/CD-integratie \autocite{AIMultipleDAST2025,AppSecSanta2025}.
 
 Tabel ~\ref{tab:dast-tools} toont een vergelijking van populaire DAST-tools op basis van open source licentie en Jenkins CI/CD-ondersteuning.
 
@@ -425,6 +428,8 @@ Nadelen:
   \item Kan false positives genereren bij complexe single-page applicaties (SPA's).
   \item Actieve scans duren langer dan statische analyse.
 \end{itemize}
+
+Vervolgens een korte samenvatting van alle besproken tools~\ref{tab:tool-comparison}:
 \begin{table}[h]
   \centering
   \caption{Vergelijking security tools voor Jenkins DevSecOps pipeline}
@@ -442,9 +447,6 @@ Nadelen:
   \end{tabular}
   *Community editie gratis, Enterprise betaald
 \end{table}
-
-
-
 
 \subsubsection{Toolselectie}
 Voor deze bachelorproef is gekozen voor de combinatie \textbf{Syft (SBOM), OWASP Dependency-Check (SCA op applicatieniveau), Grype (container image scanning)} en \textbf{SonarQube (SAST)}, omwille van:
@@ -529,11 +531,11 @@ Deze pipeline produceert CycloneDX/SPDX SBOMs, scant voor CVEs en genereert audi
 
 \section{Conclusie Literatuurstudie}
 
-De literatuurstudie toont aan dat de bouwstenen voor het automatiseren van CRA-relevante securitycontroles in CI/CD-pipelines vandaag reeds in grote mate beschikbaar zijn. DevSecOps-praktijken, security testing in pipelines, SBOM-generatie en vulnerability management zijn technisch goed onderbouwd in de literatuur, en er bestaan zowel open source als commerciële tools die deze functionaliteiten ondersteunen. Voorbeelden hiervan zijn SonarQube voor statische codeanalyse (SAST), OWASP Dependency-Check voor dependency scanning (SCA), Syft voor SBOM-generatie, OWASP ZAP voor runtime web scanning (DAST) en Jenkins als CI/CD-pipeline voor integratie van deze controles.
+De literatuurstudie toont aan dat de bouwstenen voor het automatiseren van CRA-relevante securitycontroles in CI/CD-pipelines vandaag reeds in grote mate beschikbaar zijn. DevSecOps-praktijken, security testing in pipelines, SBOM-generatie en vulnerability management zijn technisch goed onderbouwd in de literatuur, en er bestaan zowel open source als commerciële tools die deze functionaliteiten ondersteunen. Voorbeelden hiervan zijn SonarQube voor statische codeanalyse (SAST), OWASP Dependency-Check voor dependency scanning (SCA), Syft voor \\SBOM-generatie, OWASP ZAP voor runtime web scanning (DAST) en Jenkins als CI/CD-pipeline voor integratie van deze controles.
 
 Tegelijk maakt de literatuur ook duidelijk dat CRA-compliance niet kan worden herleid tot het louter combineren van enkele bestaande tools. Hoewel verschillende oplossingen deelaspecten van de problematiek afdekken, bestaat er nog geen eenduidige en gestandaardiseerde aanpak om CRA-vereisten technisch te vertalen naar concrete CI/CD-pipeline-stappen. Vooral op het vlak van toolintegratie, performantie-impact, false positives en de automatische validatie van CRA-specifieke compliancevereisten blijven er belangrijke uitdagingen bestaan.
 
-Daarnaast blijkt dat commerciële platformen, zoals geïntegreerde enterprise-oplossingen, een aantal van deze problemen gedeeltelijk opvangen via gecentraliseerde workflows en uniforme rapportering, maar dat zulke oplossingen minder geschikt zijn binnen de context van deze bachelorproef wegens licentiekost, beperkte flexibiliteit en afhankelijkheid van vendor-specifieke ecosystemen.
+Daarnaast blijkt dat commerciële platformen, zoals geïntegreerde \\enterprise-oplossingen, een aantal van deze problemen gedeeltelijk opvangen via gecentraliseerde workflows en uniforme rapportering, maar dat zulke oplossingen minder geschikt zijn binnen de context van deze bachelorproef wegens licentiekost, beperkte flexibiliteit en afhankelijkheid van vendor-specifieke ecosystemen.
 
 Op basis van deze bevindingen is het daarom zinvol om in deze bachelorproef een eigen Proof of Concept uit te werken waarin open source componenten worden gecombineerd tot één werkende DevSecOps-pipeline. Deze PoC moet aantonen in welke mate CRA-relevante controles, zoals SBOM-generatie, dependency scanning en andere geautomatiseerde securitytesten, op een haalbare en reproduceerbare manier geïntegreerd kunnen worden binnen de ontwikkelcontext van Excentis.
 

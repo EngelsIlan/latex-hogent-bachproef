@@ -69,7 +69,8 @@ De pipeline bestaat uit zes opeenvolgende stages die een klassieke CI/CD-workflo
 
 \section{Implementatie van de Jenkins-pipeline}
 
-De volledige Jenkinsfile is opgenomen in Codefragment~\ref{lst:jenkinsfile-full} en wordt hieronder functioneel toegelicht.
+De Jenkins-pipeline wordt hieronder per relevante stap en functie toegelicht aan de hand van geselecteerde codefragmenten.
+
 \subsection{Basisconfiguratie}
 
 De pipeline draait op een generieke Jenkins-agent en definieert een omgevingsvariabele \texttt{IMAGE\_name} die gebruikt wordt om de Docker containerimage uniek te taggen op basis van het buildnummer:
@@ -154,6 +155,8 @@ De eerste stages implementeren de klassieke CI-stappen:
   \end{listing}
 
 \FloatBarrier
+
+De klassieke CI-stappen van de pipeline worden in de volgende codefragmenten geïllustreerd. Codefragment~\ref{lst:checkout} toont hoe de broncode wordt opgehaald uit GitHub, Codefragment~\ref{lst:maven-build} beschrijft de Maven-build die de applicatie compileert en verpakt, en Codefragment~\ref{lst:build-image} laat zien hoe vervolgens een Docker-image wordt opgebouwd op basis van de gegenereerde JAR en de aanwezige Dockerfile. Samen vormen deze stappen de basis waarop de latere securitycontroles en compliancevalidaties worden toegepast.
 
 \subsection{Parallelle securitycontroles}
 
@@ -583,30 +586,6 @@ Dankzij het gebruik van \texttt{catchError} in de meeste securitystappen kan de 
 
 \section{Evaluatie van de PoC}
 
-\subsection{Beantwoording van doel en scope}
+De Proof of Concept toont aan dat CRA-relevante securitycontroles technisch kunnen worden geïntegreerd in een CI/CD-pipeline binnen de bestaande Jenkins-omgeving. De combinatie van SBOM-generatie, dependency scanning, SAST, container image scanning, secrets scanning en DAST laat zien dat een groot deel van de vereiste controles geautomatiseerd kan worden zonder de pipeline volledig te hertekenen.
 
-De centrale onderzoeksvraag van deze bachelorproef was hoe een CI/CD-pipeline CRA-compliance kan verzekeren. De gerealiseerde Proof of Concept toont aan dat dit haalbaar is en dat bestaande open source tools al een groot deel van de vereiste functionaliteit afdekken.
-
-De belangrijkste doelstellingen uit Sectie~\ref{ch:Proof of Concept} werden behaald. SBOM-generatie en dependency-scanning zijn geïntegreerd als vaste stappen in de pipeline, aangevuld met SAST, container image scanning, secrets scanning en DAST. De referentierun laat zien dat deze controles automatisch worden uitgevoerd bij elke build en dat kwetsbaarheden de pipeline effectief kunnen blokkeren via quality gates. Tegelijk blijft de totale doorlooptijd (7 minuten en 28 seconden) binnen een aanvaardbare grens voor dagelijks gebruik voor ontwikkelaars.
-
-\subsection{Mate van CRA-dekking}
-
-Hoewel de CRA geen concrete technische implementatie voorschrijft, kan de gerealiseerde pipeline worden getoetst aan een aantal kernvereisten. Ten eerste draagt de SBOM Flow bij aan de eis om voor elk softwareproduct een actuele en voldoende gedetailleerde SBOM bij te houden. De combinatie van Syft en het BSI TR-03183-2-validatiescript zorgt ervoor dat SBOMs in CycloneDX-formaat worden aangemaakt en dat lege of structureel ongeldige bestanden geweigerd worden.
-
-Ten tweede ondersteunen de Dependency-Check Flow en de Grype Container Scan de CRA-verwachtingen rond systematische vulnerability management. Kwetsbaarheden in zowel libraries als containerimages worden automatisch opgespoord en gekoppeld aan een drempel op basis van CVSS-scores. Zodra deze drempel wordt overschreden, markeert de pipeline de build als \texttt{UNSTABLE}, waardoor uitrol van een kwetsbare versie expliciet moet worden gemotiveerd of geblokkeerd.
-
-Ten derde zorgen de archiveringsstappen in het optionele compliancerapport ervoor dat SBOMs, scanresultaten en overkoepelende bevindingen per build worden opgeslagen. Dit vormt een eerste invulling van de CRA-eis om bewijs van de conformiteit en vulnerability handling over een langere periode beschikbaar te houden, ook al is er nog geen volwaardige policy-engine of formele auditworkflow geïmplementeerd.
-
-\subsection{Technische en organisatorische impact}
-
-Technisch gezien bevestigt de PoC dat meerdere open source securitytools in één Jenkins-pipeline kunnen worden samengebracht zonder ingrijpende wijzigingen aan de bestaande buildketen. De integratie via een \texttt{Jenkinsfile} maakt het bovendien mogelijk om wijzigingen in de securitylogica te versioneren en via code reviews te beheren, wat goed aansluit bij de DevSecOps-praktijken.
-
-Tegelijk toont de PoC aan dat er onvermijdelijk extra runtime en ruis wordt geïntroduceerd. SBOM-generatie, SCA, SAST, container scanning en DAST voegen gezamenlijk meerdere minuten toe aan elke build, en tools zoals Dependency-Check en Grype kunnen false positives rapporteren die manuele triage vereisen. Organisatorisch betekent dit dat teams niet alleen tooling moeten voorzien, maar ook processen rond interpretatie van resultaten, ownership van vulnerabilities en het documenteren van bewuste acceptaties.
-
-\subsection{Beperkingen en toekomstige uitbreiding}
-
-De huidige PoC is bewust beperkt gebleven in scope. Ze richt zich concreet één Java-gebaseerde demo-applicatie (maar is ook ontworpen om .NET- en Python-projecten te ondersteunen) en een beperkte set van tools die gemakkelijk in een Jenkins-omgeving te integreren zijn. Multi-repo scenario's, complexe microservice-landschappen en geautomatiseerde beslissingslogica op basis van SBOMs en externe CVE-feeds vallen buiten deze implementatie en blijven dus een open werkpunt.
-
-Daarnaast is ook de CRA-dekking nog niet volledig. Zo ontbreekt een gestandaardiseerde CRA-checklist voor pipelines en wordt de koppeling tussen SBOMs en CVE-databases nog slechts gedeeltelijk geautomatiseerd.
-
-De huidige PoC vormt een eerste referentie-implementatie voor een CRA-geïnspireerde CI/CD-pipeline binnen Excentis. De teams binnen Excentis kunnen deze pipeline gebruiken als grondslag en ze verder aanpassen aan hun eigen technologie-stacks, risicoprofiel en procesvereisten toe te voegen of strengere policyregels rond false positives en uitzonderingen te definiëren.
+Tegelijk bevestigt de implementatie ook dat volledige automatisering niet vanzelfsprekend is. False positives, extra runtime, en de nood aan manuele interpretatie blijven belangrijke aandachtspunten. De PoC vormt daarmee vooral een praktische referentie-implementatie waarop verder kan worden gebouwd.
