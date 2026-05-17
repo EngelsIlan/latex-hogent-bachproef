@@ -434,18 +434,26 @@ Vervolgens een korte samenvatting van alle besproken tools~\ref{tab:tool-compari
   \centering
   \caption{Vergelijking security tools voor Jenkins DevSecOps pipeline}
   \label{tab:tool-comparison}
-  \begin{tabular}{|l|c|c|c|c|c|}
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{|l|c|c|c|c|c|c|c|c|}
     \hline
-    \textbf{Tool} & \textbf{SAST} & \textbf{SCA} & \textbf{SBOM} & \textbf{Jenkins} & \textbf{Licentie} \\
+    \textbf{Tool} & \textbf{SAST} & \textbf{SCA} & \textbf{SBOM} & \textbf{Secrets} & \textbf{IaC} & \textbf{DAST} & \textbf{Jenkins} & \textbf{Licentie} \\
     \hline
-    Snyk & Ja & Ja & Ja & Ja & Commercieel \\
-    Aikido & Ja & Ja & Gedeeltelijk & Ja & Commercieel \\
-    OWASP Dep-Check & Nee & Ja & Nee & Ja & Open Source \\
-    SonarQube & Ja & Gedeeltelijk & Nee & Ja & Open Source* \\
-    Grype & Nee & Ja (containers) & Ja (via SBOM) & Ja (CLI) & Open Source \\
+    Snyk & Ja & Ja & Ja & Ja & Ja & Nee & Ja & Commercieel \\
+    Aikido Security & Ja & Ja & Gedeeltelijk & Ja & Ja & Nee & Ja & Commercieel \\
+    OWASP Dependency-Check & Nee & Ja & Nee & Nee & Nee & Nee & Ja & Open Source \\
+    SonarQube & Ja & Gedeeltelijk & Nee & Nee & Nee & Nee & Ja & Open Source* \\
+    Grype & Nee & Ja (containers) & Ja (via Syft) & Nee & Nee & Nee & Ja (CLI) & Open Source \\
+    Trufflehog & Nee & Nee & Nee & Ja & Nee & Nee & Ja (CLI) & Open Source \\
+    Checkov & Nee & Nee & Nee & Nee & Ja & Nee & Ja (CLI) & Open Source \\
+    OWASP ZAP & Nee & Nee & Nee & Nee & Nee & Ja & Ja & Open Source \\
     \hline
-  \end{tabular}
-  *Community editie gratis, Enterprise betaald
+  \end{tabular}%
+  }
+
+  \vspace{2mm}
+  
+  \small *Community Edition gratis, Enterprise betaald
 \end{table}
 
 \subsubsection{Toolselectie}

@@ -42,13 +42,20 @@ De pipeline volgt een klassieke CI/CD-volgorde waarin de securitystappen zijn ge
 
 Deze opbouw zorgt ervoor dat securitycontroles niet losstaan van het ontwikkelproces, maar deel uitmaken van dezelfde geautomatiseerde workflow. Op die manier wordt feedback voor ontwikkelaars vroeg in het proces gegeven en blijft de impact op de bestaande werkwijze beperkt.
 
+Figuur~\ref{fig:artefacts-structuur} toont vervolgens welke artefacten door de verschillende stappen worden gegenereerd en verzameld. De SBOM-generatie produceert een CycloneDX-bestand, de dependency scan levert een HTML-rapport op, TruffleHog genereert een JSON-rapport, OWASP ZAP produceert een HTML-rapport en de rapportagestap verstuurd de resultaten via e-mail.
+
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{../graphics/pipeline-structuur.png}
-    \caption[Overzicht Jenkins-pipeline]{High-level overzicht van de Jenkins-pipeline. Blauwe pijlen tonen het
-    sequentiële verloop van de stages, rode pijlen tonen welke artefacten (SBOM,
-    scanrapporten, e-mail) in elke stap worden geproduceerd en verzameld.}
-    \label{fig:pipleine-structuur}
+    \caption[Overzicht Jenkins-pipeline]{High-level overzicht van de Jenkins-pipeline.}
+    \label{fig:pipeline-structuur}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{../graphics/artifacts-per-pipeline-stap.png}
+    \caption[Artefacten per pipeline-stap]{Overzicht van de artefacten die door de verschillende pipeline-stappen worden geproduceerd en verzameld.}
+    \label{fig:artefacts-structuur}
 \end{figure}
 
 \subsection{Pipeline stages}
@@ -556,7 +563,7 @@ De focus ligt op het gedrag van de Jenkins-pipeline in een representatieve run m
 
 Als referentiescenario werd een build uitgevoerd op de \texttt{main}-branch van Spring Petclinic. De volledige Jenkins-pipeline doorliep hierbij alle geconfigureerde stages: van \texttt{Checkout} en \texttt{Maven Build} over \texttt{Build Container Image} tot en met de parallelle securitycontroles, runtime-stappen en archivering van artefacten.
 
-De run toont aan dat de pipeline de verschillende securitytools in de juiste volgorde en met de juiste input aanroept. Eerst wordt een containerimage opgebouwd op basis van de gecompileerde JAR, waarna in de stage \texttt{Parallel Security Checks} de SBOM-generatie, dependency scanning, SAST, container image scanning en secrets scanning parallel worden uitgevoerd. Vervolgens wordt de container gestart en via OWASP ZAP aan een DAST-scan onderworpen, waarna de belangrijkste rapporten als HTML en JSON beschikbaar zijn in Jenkins voor verdere analyse.
+De referentierun toont aan dat de pipeline de verschillende securitytools in de juiste volgorde en met de juiste input aanroept. Eerst wordt een containerimage opgebouwd op basis van de gecompileerde JAR, waarna in de stage \texttt{Parallel Security Checks} de SBOM-generatie, dependency scanning, SAST, container image scanning en secrets scanning parallel worden uitgevoerd. Vervolgens wordt de container gestart en via OWASP ZAP aan een DAST-scan onderworpen, waarna de belangrijkste rapporten als HTML en JSON beschikbaar zijn in Jenkins voor verdere analyse.
 
 Figuur~\ref{fig:jenkins-run-overview} toont het stage-overzicht van de pipeline voor deze run. De klassieke CI-stappen (\texttt{Tool Install}, \texttt{Checkout}, \texttt{Maven Build} en \texttt{Build Container Image}) slagen zonder fouten, waarna de parallelle securityflows, runtime-stappen en archivering worden uitgevoerd.
 
@@ -580,9 +587,13 @@ De referentierun laat zien dat de verschillende securityflows effectief probleme
 
 Dankzij het gebruik van \texttt{catchError} in de meeste securitystappen kan de pipeline ondanks deze failures verderlopen tot \texttt{Run Container}, \texttt{OWASP ZAP Scan}, \texttt{Compliance Rapport} en \texttt{Archive Artifacts} zodat alle relevante rapporten en artefacten na afloop van de run beschikbaar zijn in Jenkins.
 
-\subsection{Referentierun simpele Python-applicatie}
+\subsection{Referentieruns simpele Python-applicaties}
 
-\subsection{Referentierun simpele .NET-applicatie}
+Voor de Python-applicatie werden twee referentieruns uitgevoerd: één op een bewust kwetsbare applicatie en één op een versie zonder gekende kwetsbaarheden. De kwetsbare variant leverde effectieve detecties op in de dependency-scans en de container scanning, terwijl de niet-kwetsbare variant geen CVE's opleverde in OWASP Dependency-Check en dus een lege rapportage genereerde, zoals verwacht. De SBOM-validatie en container scanning bleven wel aandachtspunten, aangezien deze ook afhankelijk zijn van de volledigheid van de SBOM en de gebruikte containerbasis.
+
+\subsection{Referentieruns simpele .NET-applicaties}
+
+Ook voor de .NET-applicaties werd dezelfde opzet gevolgd: een kwetsbare referentieversie en een versie zonder bedoelde kwetsbaarheden. De kwetsbare applicatie leidde tot detecties in de securityscans, terwijl de schone versie geen relevante dependency-kwetsbaarheden rapporteerde. Dit bevestigt dat de pipeline niet enkel voor Java, maar ook voor andere technologiën bruikbaar is, op voorwaarde dat de build- en scanstappen worden aangepast aan het gebruikte ecosysteem. Daarbij blijft de kwaliteit van de resultaten wel afhankelijk van de gebruikte dependencies, basisimages en de volledigheid van de SBOM.
 
 \section{Evaluatie van de PoC}
 
