@@ -565,19 +565,25 @@ Als referentiescenario werd een build uitgevoerd op de \texttt{main}-branch van 
 
 De referentierun toont aan dat de pipeline de verschillende securitytools in de juiste volgorde en met de juiste input aanroept. Eerst wordt een containerimage opgebouwd op basis van de gecompileerde JAR, waarna in de stage \texttt{Parallel Security Checks} de SBOM-generatie, dependency scanning, SAST, container image scanning en secrets scanning parallel worden uitgevoerd. Vervolgens wordt de container gestart en via OWASP ZAP aan een DAST-scan onderworpen, waarna de belangrijkste rapporten als HTML en JSON beschikbaar zijn in Jenkins voor verdere analyse.
 
-Figuur~\ref{fig:jenkins-run-overview} toont het stage-overzicht van de pipeline voor deze run. De klassieke CI-stappen (\texttt{Tool Install}, \texttt{Checkout}, \texttt{Maven Build} en \texttt{Build Container Image}) slagen zonder fouten, waarna de parallelle securityflows, runtime-stappen en archivering worden uitgevoerd.
+Figuren~\ref{fig:jenkins-run-overview-pt1} en~\ref{fig:jenkins-run-overview-pt2} tonen het stage-overzicht van de pipeline voor deze run. De klassieke CI-stappen (\texttt{Tool Install}, \texttt{Checkout}, \texttt{Maven Build} en \texttt{Build Container Image}) slagen zonder fouten, waarna de parallelle securityflows, runtime-stappen en archivering worden uitgevoerd.
 
 De totale doorlooptijd van deze run bedroeg 7 minuten en 28 seconden.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{../graphics/jenkins-run-overview.png}
-    \caption{Overzicht van de Jenkins-pipeline voor de referentierun van Spring Petclinic.}
-    \label{fig:jenkins-run-overview}
+    \includegraphics[width=\textwidth]{../graphics/jenkins-run-overview-pt1.png}
+    \caption{Overzicht van de Jenkins-pipeline voor de referentierun van Spring Petclinic, deel 1.}
+    \label{fig:jenkins-run-overview-pt1}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{../graphics/jenkins-run-overview-pt2.png}
+    \caption{Overzicht van de Jenkins-pipeline voor de referentierun van Spring Petclinic, deel 2.}
+    \label{fig:jenkins-run-overview-pt2}
 \end{figure}
 
 \subsubsection{Securitybevindingen per tool}
-De referentierun laat zien dat de verschillende securityflows effectief problemen detecteren in de applicatie en containerimage. In de stage \texttt{Parallel Security Checks} zijn drie stappen als fout gemarkeerd: \texttt{Dependency Check Scan}, \texttt{SBOM Validatie (BSI TR-03183-2)} en \texttt{Scan Container Image}. Deze failures duiden op gevonden kwetsbaarheden of validatieproblemen, terwijl de andere securityflows (SonarQube, SBOM-generatie, TruffleHog) succesvol afronden.
+De referentierun laat zien dat de verschillende securityflows effectief problemen detecteren in de applicatie en containerimage. In de stage \texttt{Parallel Security Checks} zijn drie stappen als fout gemarkeerd: \texttt{Dependency Check Scan}, \\\texttt{SBOM Validatie (BSI TR-03183-2)} en \texttt{Scan Container Image}. Deze failures duiden op gevonden kwetsbaarheden of validatieproblemen, terwijl de andere securityflows (SonarQube, SBOM-generatie, TruffleHog) succesvol afronden.
 
 \begin{enumerate}
     \item \textbf{SBOM Flow}: De validatiestap \texttt{SBOM Validatie (BSI TR-03183-2)} faalde in deze run, wat aantoont dat het validatiescript effectief afwijkingen in de SBOM kan detecteren en de pipeline daarop kan blokkeren.
@@ -588,12 +594,48 @@ De referentierun laat zien dat de verschillende securityflows effectief probleme
 Dankzij het gebruik van \texttt{catchError} in de meeste securitystappen kan de pipeline ondanks deze failures verderlopen tot \texttt{Run Container}, \texttt{OWASP ZAP Scan}, \texttt{Compliance Rapport} en \texttt{Archive Artifacts} zodat alle relevante rapporten en artefacten na afloop van de run beschikbaar zijn in Jenkins.
 
 \subsection{Referentieruns simpele Python-applicaties}
+\label{ch:python-apps}
 
 Voor de Python-applicatie werden twee referentieruns uitgevoerd: één op een bewust kwetsbare applicatie en één op een versie zonder gekende kwetsbaarheden. De kwetsbare variant leverde effectieve detecties op in de dependency-scans en de container scanning, terwijl de niet-kwetsbare variant geen CVE's opleverde in OWASP Dependency-Check en dus een lege rapportage genereerde, zoals verwacht. De SBOM-validatie en container scanning bleven wel aandachtspunten, aangezien deze ook afhankelijk zijn van de volledigheid van de SBOM en de gebruikte containerbasis.
+
+De referentierun met de kwetsbare Python-applicatie, afgebeeld in Figuur~\ref{fig:jenkins-run-python-vuln} en de referentierun zonder kwetsbaarheden, afgebeeld in Figuur~\ref{fig:jenkins-run-python}, tonen dat de pipeline effectief onderscheid maakt tussen applicaties met en zonder kwetsbaarheden. In beide runs falen de stappen \texttt{SBOM Validatie} en \texttt{Scan Container Image}, doordat de gegenereerde SBOM niet volledig aan de vereisten voldoet en het containerimage kwetsbaarheden bevat. Het belangrijkste verschil tussen beide scenario's zit in \texttt{Dependency Check Scan}: in de kwetsbare pipeline wordt deze stage als fout gemarkeerd, terwijl de niet-kwetsbare variant hier geen relevante CVE's rapporteert en dus slaagt.
+
+De DAST-stap met OWASP ZAP bleef in deze test in de vulnerable Python applicatie buiten scope, omdat de Python-applicatie in deze opzet niet als actieve webserver werd opgestart. Daardoor ligt het onderscheid tussen beide runs vooral in de resultaten van de dependency-analyse en niet in de runtime-scanning.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{../graphics/jenkins-run-python-vuln.png}
+    \caption{Referentierun kwetsbare Python-applicatie.}
+    \label{fig:jenkins-run-python-vuln}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{../graphics/jenkins-run-python.png}
+    \caption{Referentierun niet-kwetsbare Python-applicatie.}
+    \label{fig:jenkins-run-python}
+\end{figure}
+\FloatBarrier
 
 \subsection{Referentieruns simpele .NET-applicaties}
 
 Ook voor de .NET-applicaties werd dezelfde opzet gevolgd: een kwetsbare referentieversie en een versie zonder bedoelde kwetsbaarheden. De kwetsbare applicatie leidde tot detecties in de securityscans, terwijl de schone versie geen relevante dependency-kwetsbaarheden rapporteerde. Dit bevestigt dat de pipeline niet enkel voor Java, maar ook voor andere technologiën bruikbaar is, op voorwaarde dat de build- en scanstappen worden aangepast aan het gebruikte ecosysteem. Daarbij blijft de kwaliteit van de resultaten wel afhankelijk van de gebruikte dependencies, basisimages en de volledigheid van de SBOM.
+
+De referentierun met de kwetsbare .NET-applicatie, afgebeeld in Figuur~\ref{fig:jenkins-run-dotnet-vuln} en de referentierun zonder kwetsbaarheden, afgebeeld in Figuur~\ref{fig:jenkins-run-dotnet}, tonen hetzelfde patroon als bij de Python-applicaties. De pipeline maakt effectief onderscheid tussen een kwetsbare en een niet-kwetsbare versie. In beide runs falen de stappen \texttt{SBOM Validatie} en \texttt{Scan Container Image} om exact dezelfde redenen als vermeld in Subsectie~\ref{ch:python-apps}. En ook hier is het belangrijkste verschil in stage \texttt{Dependency Check Scan}: in de kwetsbare pipeline is deze stap als fout gemarkeerd en bij de niet kwetsbare zijn er geen relevante CVE's gevonden. Ook dit is dus als beschreven in Subsectie~\ref{ch:python-apps}.
+
+Ook hier bleef de DAST-stap met OWASP ZAP buiten scope bij de vulnerable .NET-applicatie.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{../graphics/jenkins-run-dotnet-vuln.png}
+    \caption{Referentierun kwetsbare .NET-applicatie.}
+    \label{fig:jenkins-run-dotnet-vuln}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{../graphics/jenkins-run-dotnet.png}
+    \caption{Referentierun niet-kwetsbare .NET-applicatie.}
+    \label{fig:jenkins-run-dotnet}
+\end{figure}
+\FloatBarrier
 
 \section{Evaluatie van de PoC}
 
