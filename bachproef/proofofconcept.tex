@@ -5,7 +5,7 @@
 \chapter{\IfLanguageName{dutch}{Proof of Concept}{Proof of Concept}}%
 \label{ch:Proof of Concept}
 \section{Doel en Scope}
-De Proof of Concept (PoC) heeft als doel aan te tonen hoe een bestaande CI/CD-pipeline kan worden uitgebreid met CRA-relevante securitycontroles, zonder het ontwikkelproces volledig te hertekenen. De focus ligt op twee kernactiviteiten: het genereren van een Software Bill of Materials (SBOM) en het automatisch uitvoeren van dependency scanning met een duidelijke kwaliteitsdrempel (quality gate) op basis van CVSS-scores. Daarnaast werden aanvullende controles geïntegreerd, zoals SAST, container image scanning, secrets scanning en DAST, om een volledig productiewaardige DevSecOps-pipeline te verkrijgen. Dit vormt een referentie-implementatie die door Excentis-teams kan worden overgenomen en in bestaande ontwikkelworkflows kan worden geïntegreerd.
+De Proof of Concept (PoC) heeft als doel aan te tonen hoe een bestaande CI/CD-pipeline kan worden uitgebreid met CRA-relevante securitycontroles, zonder het ontwikkelproces volledig opnieuw te ontwerpen. De focus ligt op twee kernactiviteiten: het genereren van een Software Bill of Materials (SBOM) en het automatisch uitvoeren van dependency scanning met een duidelijke kwaliteitsdrempel (quality gate) op basis van CVSS-scores. Daarnaast werden aanvullende controles geïntegreerd, zoals SAST, container image scanning, secrets scanning en DAST, om een volledig productiewaardige DevSecOps-pipeline te verkrijgen. Dit vormt een referentie-implementatie die door Excentis-teams kan worden overgenomen en in bestaande ontwikkelworkflows kan worden geïntegreerd.
 
 De PoC is bewust beperkt gehouden tot een paar projectrepositories met relatief eenvoudige buildketens (zoals Maven-, .NET- of Python-projecten). Complexere scenario's zoals multi-repo orkestratie of geavanceerde policy engines vallen hier buiten de scope van deze bachelorproef.
 
@@ -583,7 +583,7 @@ De totale doorlooptijd van deze run bedroeg 7 minuten en 28 seconden.
 \end{figure}
 
 \subsubsection{Securitybevindingen per tool}
-De referentierun laat zien dat de verschillende securityflows effectief problemen detecteren in de applicatie en containerimage. In de stage \texttt{Parallel Security Checks} zijn drie stappen als fout gemarkeerd: \texttt{Dependency Check Scan}, \\\texttt{SBOM Validatie (BSI TR-03183-2)} en \texttt{Scan Container Image}. Deze failures duiden op gevonden kwetsbaarheden of validatieproblemen, terwijl de andere securityflows (SonarQube, SBOM-generatie, TruffleHog) succesvol afronden.
+De referentierun laat zien dat de verschillende securityflows effectief problemen detecteren in de applicatie en containerimage. In de stage \texttt{Parallel Security Checks} werden drie stappen als fout gemarkeerd: \texttt{Dependency Check Scan}, \\\texttt{SBOM Validatie (BSI TR-03183-2)} en \texttt{Scan Container Image}. Deze failures duiden op gevonden kwetsbaarheden of validatieproblemen, terwijl de andere securityflows (SonarQube, SBOM-generatie, TruffleHog) succesvol afronden.
 
 \begin{enumerate}
     \item \textbf{SBOM Flow}: De validatiestap \texttt{SBOM Validatie (BSI TR-03183-2)} faalde in deze run, wat aantoont dat het validatiescript effectief afwijkingen in de SBOM kan detecteren en de pipeline daarop kan blokkeren.

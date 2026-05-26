@@ -16,10 +16,10 @@ Deze literatuurstudie schetst de huidige stand van zaken rond CRA-compliance, be
 
 \section{Cyber Resilience Act}
 \subsection{Inleiding en doelstellingen}
-De Cyber Resilience Act (CRA), die op 10 december 2024 in werking trad, is een Europese wetgeving die de cybersecurity van digitale producten verplicht stelt vóór deze op de markt komen \autocite{EU_CRA}. Het doel hiervan is het verbeteren van de digitale weerbaarheid van producten, met andere woorden: het vermogen van deze producten om veilig en betrouwbaar te blijven functioneren ondanks cyberdreigingen en het verkleinen van de risico's door kwetsbaarheden in software en hardware op tijd te detecteren en mitigeren. 
+De Cyber Resilience Act (CRA), die op 10 december 2024 in werking trad, is een Europese wetgeving die de cybersecurity van digitale producten verplicht stelt vóór ze op de markt komen \autocite{EU_CRA}. Het doel hiervan is het verbeteren van de digitale weerbaarheid van producten, met andere woorden: het vermogen van deze producten om veilig en betrouwbaar te blijven functioneren ondanks cyberdreigingen en het verkleinen van de risico's door kwetsbaarheden in software en hardware op tijd te detecteren en mitigeren. 
 
 \subsection{Specifieke vereisten en tijdlijn}
-De CRA legt strikte eisen op doorheen de volledige levenscyclus: security-by-design (risicoanalyse en secure development lifecycle), Software Bill of Materials (SBOM) voor transparantie van componenten, vulnerability management (CVE-scans en mitigatie), incidentrapportage binnen 24 uur bij ernstige kwetsbaarheden en verplichte beveiligingsupdates gedurende minstens 5 jaar \autocite{EU_CRA}. De implementatietijdslijn verloopt gefaseerd: meldplicht voor ernstige kwetsbaarheden start op 11 september 2026, volledige toepassing van alle eisen inclusief CE-certificering vanaf 11 december 2027 \autocite{RDI2024CRA}.
+De CRA legt strikte eisen op doorheen de volledige levenscyclus: security-by-design (risicoanalyse en secure development life cycle), Software Bill of Materials (SBOM) voor transparantie van componenten, vulnerability management (CVE-scans en mitigatie), incidentrapportage binnen 24 uur bij ernstige kwetsbaarheden en verplichte beveiligingsupdates gedurende minstens 5 jaar \autocite{EU_CRA}. De implementatietijdslijn verloopt in fasen: meldplicht voor ernstige kwetsbaarheden start op 11 september 2026, volledige toepassing van alle eisen inclusief CE-certificering vanaf 11 december 2027 \autocite{RDI2024CRA}.
 Figuur~\ref{fig:cra-tijdslijn} geeft een overzicht van enkele van de belangrijkste mijlpalen binnen de implementatietijdslijn van de Cyber Resilience Act.
 \begin{figure}[h]
   \centering
@@ -93,13 +93,13 @@ De OWASP Top 10 \autocite{OWASPTop10_2025} fungeert hierbij vaak als referentiek
 \section{Software Bill of Materials}
 \subsection{Wat is een Software Bill of Materials?}
 
-Een Software Bill of Materials (SBOM) is een gestructureerde lijst van alle softwarecomponenten waaruit een applicatie of systeem is opgebouwd. Dit bevat typische velden zoals naam van de component, leverancier, versie, dependencies en metadata \autocite{IEEE2025}. Dit zorgt ervoor dat een organisatie beter zicht kan krijgen op hun software supply chain en sneller kwetsbaarheden en licentieproblemen kunnen identificeren \autocite{Stalnaker2024}.
+Een Software Bill of Materials (SBOM) is een gestructureerde lijst van alle softwarecomponenten waaruit een applicatie of systeem is opgebouwd. Dit bevat typische velden zoals naam van de component, leverancier, versie, dependencies en metadata \autocite{IEEE2025}. Dit zorgt ervoor dat een organisatie beter zicht kan krijgen op haar software supply chain en sneller kwetsbaarheden en licentieproblemen kunnen identificeren \autocite{Stalnaker2024}.
 
 SBOM-informatie wordt vastgelegd in gestandaardiseerde formaten zodat ze zowel door mensen als door tools verwerkt kan worden. De meest gebruikte hiervan zijn SPDX (Software Package Data Exchange) en CycloneDX \autocite{Stalnaker2024}. SPDX richt zich vooral op licenties, provenance en relaties tussen componenten en wordt onder andere aanbevolen in sectoren met strikte compliance eisen \autocite{Stalnaker2024}. CycloneDX is een lichter SBOM-formaat dat specifiek ontworpen is voor application security en supply-chain-risk-analyse, met ingebouwde ondersteuningen voor security- en kwetsbaarheidscontext \autocite{Stalnaker2024}.
 
 \subsection{SBOM Generatie-tools}
 
-SBOMs worden gegenereerd door tools die software dependencies analyseren tijdens de build-fase van CI/CD pipelines. \textcite{Mirakhorli2024} evalueerden 84 SBOM tools en identificeerden de tools met beste prestaties op basis van taal/ecosysteem ondersteuning.
+SBOM's worden gegenereerd door tools die software dependencies analyseren tijdens de build-fase van CI/CD pipelines. \textcite{Mirakhorli2024} evalueerden 84 SBOM tools en identificeerden de tools met de beste prestaties op basis van taal/ecosysteem ondersteuning.
 
 \begin{table}[H]
   \centering
@@ -202,9 +202,9 @@ OWASP Dependency-Check scant alle populaire package managers (Maven, npm, pip, e
 
 \subsubsection{Container image scanning}
 
-Naast dependency-scanners op broncode bestaan er ook tools die specifiek containerimages analyseren op kwetsbaarheden. Deze tools combineren informatie overbesturingssysteempakketten en applicatie dependencies met gegevens uit kwetsbaarheidsdatabanken zoals de NVD \autocite{AnchoreOpensource,BionSyftGrype}.
+Naast dependency-scanners op broncode bestaan er ook tools die specifiek containerimages analyseren op kwetsbaarheden. Deze tools combineren informatie over de besturingssysteempakketten en applicatie dependencies met gegevens uit kwetsbaarheidsdatabanken zoals de NVD \autocite{AnchoreOpensource,BionSyftGrype}.
 
-Grype is een open source vulnerabilityscanner uit het Anchore-ecosysteem die containerimages, filesystems en SBOM-bestanden kan analyseren op bekende kwetsbaarheden \autocite{GrypeGithub}. De tool ondersteunt zowel rechtstreekse scans van images via Docekr of Podman als indirecte scans op basis van eerder gegenereerde SBOMs, bijvoorbeeld afkomstig van Syft \autocite{JitSyftGrype}. Dit zorgt er ook voor dat Grype makkelijk geïntegreerd kan worden in CI/CD-pipelines om containerimages nog vóór deployment automatisch te valideren op HIGH- en CRITICAL-kwetsbaarheden. 
+Grype is een open source vulnerabilityscanner uit het Anchore-ecosysteem die containerimages, filesystems en SBOM-bestanden kan analyseren op bekende kwetsbaarheden \autocite{GrypeGithub}. De tool ondersteunt zowel rechtstreekse scans van images via Docker of Podman als indirecte scans op basis van eerder gegenereerde SBOM's, bijvoorbeeld afkomstig van Syft \autocite{JitSyftGrype}. Dit zorgt er ook voor dat Grype makkelijk geïntegreerd kan worden in CI/CD-pipelines om containerimages nog vóór deployment automatisch te valideren op HIGH- en CRITICAL-kwetsbaarheden. 
 
 \subsection{Risk scoring (CVSS)}
 
@@ -269,7 +269,7 @@ Voor deze bachelorproef is \textbf{OWASP ZAP} geselecteerd als DAST-tool. De keu
 
 In deze bachelorproef is het doel om een DevSecOps-pipeline op te zetten die zowel kwetsbaarheden in eigen code alsook kwetsbaarheden in dependencies detecteert. Hiernaast moet dit ook een SBOM kunnen produceren die hergebruikt kan worden in functie van CRA-compliance. Dit betekent dat er tools nodig zijn die geïntegreerd kunnen worden in Jenkins zodat ze aansluiten bij de huidige ontwikkelpraktijk .
 
-De selectie van deze tools vloeit voort uit de functionele eisen van de Proof of Concept: de pipeline moet code, dependencies, containers en secrets kunnen analyseren, SBOMs kunnen genereren en de resultaten integreren in Jenkins. Daarnaast wordt een vergelijking gemaakt met commerciële all-in-one platforms zoals Snyk en Aikido Security, om de gekozen open source aanpak te verantwoorden.
+De selectie van deze tools vloeit voort uit de functionele eisen van de Proof of Concept: de pipeline moet code, dependencies, containers en secrets kunnen analyseren, SBOM's kunnen genereren en de resultaten integreren in Jenkins. Daarnaast wordt een vergelijking gemaakt met commerciële all-in-one platforms zoals Snyk en Aikido Security, om de gekozen open source aanpak te verantwoorden.
 
 Daaril worden volgende tools besproken:
 \begin{itemize}
@@ -472,10 +472,10 @@ Hier zullen er twee concrete voorbeelden besproken worden van pipelines die vold
 
 Red Hat's Advanced Developer Suite integreert SBOM-generatie, CVE-scanning en compliance-gating in een Jenkins-pipeline. De pipeline bevat:
 \begin{enumerate}
-  \item \textbf{SBOM-generatie}: Trusted Profile Analyzer produceert CycloneDX SBOMs
+  \item \textbf{SBOM-generatie}: Trusted Profile Analyzer produceert CycloneDX SBOM's
   \item \textbf{CVE-analyse}: SBOM wordt geüpload naar analyzer-service voor NVD-matching
   \item \textbf{Compliance-gate}: Builds falen bij kritieke vulnerabilities of policy-violaties
-  \item \textbf{Audit-ready rapportage}: SBOMs en scan-resultaten worden gearchiveerd voor CRA-documentatie (zie Figuur~\ref{fig:redhat-pipeline})
+  \item \textbf{Audit-ready rapportage}: SBOM's en scan-resultaten worden gearchiveerd voor CRA-documentatie (zie Figuur~\ref{fig:redhat-pipeline})
 \end{enumerate}
 
 
@@ -502,7 +502,7 @@ Red Hat's Advanced Developer Suite integreert SBOM-generatie, CVE-scanning en co
   \label{fig:redhat-pipeline}
 \end{figure}
 
-Deze aanpak voldoet aan de vereisten van CRA door machine-readable SBOMs te maken alsook vulnerability-data te koppelen \autocite{RedHatPipeline}.
+Deze aanpak voldoet aan de vereisten van CRA door machine-readable SBOM's te maken alsook vulnerability-data te koppelen \autocite{RedHatPipeline}.
 
 \subsubsection{Open Source Jenkins Pipeline (Syft + Trivy)}
 
@@ -535,7 +535,7 @@ Een open source template op GitHub toont een CRA-compliant pipeline met Syft voo
   \end{minted}
 \end{listing}
 
-Deze pipeline produceert CycloneDX/SPDX SBOMs, scant voor CVEs en genereert audit-ready rapporten. Dit voldoet aan de BSI TR-03183-2 (de eisen voor de Duitse Overheid ivm. Cyber Resilience) en is direct bruikbaar voor Jenkins \autocite{CRAEvidencePipeline}. 
+Deze pipeline produceert CycloneDX/SPDX SBOM's, scant voor CVEs en genereert audit-ready rapporten. Dit voldoet aan de BSI TR-03183-2 (de eisen voor de Duitse Overheid ivm. Cyber Resilience) en is direct bruikbaar voor Jenkins \autocite{CRAEvidencePipeline}. 
 
 \section{Conclusie Literatuurstudie}
 
