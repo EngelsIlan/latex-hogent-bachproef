@@ -10,7 +10,7 @@ In dit hoofdstuk wordt de huidige stand van zaken rond de Cyber Resilience Act e
 
 \section{Inleiding}
 
-Er is de voorbije jaren een sterke evolutie geweest in onderzoek naar de automatisering van beveiligingstesten om gevaarlijke commits op te sporen en security-scans te integreren in het ontwikkelingsproces \autocite{Takahashi2025}. Omdat de complexiteit van software steeds toeneemt en supply-chain-aanvallen groeien, richten steeds meer bedrijven zich op DevSecOps, waarbij beveiliging vanaf het begin in de CI/CD-pipeline wordt geïntegreerd \autocite{Takahashi2025}. Met supply-chain-aanvallen worden aanvallen bedoeld waarbij niet de applicatie zelf rechtstreeks wordt aangevallen, maar zwakke schakels in de softwareketen, zoals externe dependencies, buildtools, repositories of updateprocessen \autocite{OWASPSupplyChain,LegitSupplyChain}. Ondertussen verplicht nieuwe Europese wetgeving, zoals de Cyber Resilience Act, fabrikanten van software- en hardwareproducten om hun producten duidelijk veilig en betrouwbaar te maken vóór deze op de markt komen \autocite{EU_CRA}. 
+Er is de voorbije jaren een sterke evolutie geweest in onderzoek naar de automatisering van beveiligingstesten om gevaarlijke commits op te sporen en security-scans te integreren in het ontwikkelingsproces \autocite{Takahashi2025}. Omdat de complexiteit van software steeds toeneemt en supply-chain-\\aanvallen groeien, richten steeds meer bedrijven zich op DevSecOps, waarbij beveiliging vanaf het begin in de CI/CD-pipeline wordt geïntegreerd \autocite{Takahashi2025}. Met supply-chain-aanvallen worden aanvallen bedoeld waarbij niet de applicatie zelf rechtstreeks wordt aangevallen, maar zwakke schakels in de softwareketen, zoals externe dependencies, buildtools, repositories of updateprocessen \autocite{OWASPSupplyChain,LegitSupplyChain}. Ondertussen verplicht nieuwe Europese wetgeving, zoals de Cyber Resilience Act, fabrikanten van software- en hardwareproducten om hun producten duidelijk veilig en betrouwbaar te maken vóór deze op de markt komen \autocite{EU_CRA}. 
 
 Deze literatuurstudie schetst de huidige stand van zaken rond CRA-compliance, beveiligingsautomatisering, SBOM-generatie en CVE-analyse, en toont welke problemen er vandaag nog bestaan.
 
@@ -84,11 +84,11 @@ Deze principes zorgen ervoor dat beveiliging geen bottleneck vormt maar een geï
 
 \subsection{Security testing in pipelines}\label{subsec:security-testing-pipelines}
 
-In een DevSecOps-context worden verschillende soorten securitytesten geïntegreerd in de CI/CD-pipeline, zodat kwetsbaarheden zo vroeg mogelijk worden opgespoord \autocite{RamdassJain2025}. Daarbij wordt vaak een combinatie gebruikt van Static Application Security Testing (SAST), Dynamic Application Security Testing (DAST) en Software Composition Analysis (SCA), die automatisch draaien bij elke build of pull request \autocite{AWS2021}. Dit vermindert de kans dat kwetsbaarheden onopgemerkt in productie kunnen terechtkomen en helpt om sneller te reageren op nieuwe dreigingen \autocite{Snyk2026}.
+In een DevSecOps-context worden verschillende soorten securitytesten\\geïntegreerd in de CI/CD-pipeline, zodat kwetsbaarheden zo vroeg mogelijk worden opgespoord \autocite{RamdassJain2025}. Daarbij wordt vaak een combinatie gebruikt van Static Application Security Testing (SAST), Dynamic Application Security Testing (DAST) en Software Composition Analysis (SCA), die automatisch draaien bij elke build of pull request \autocite{AWS2021}. Dit vermindert de kans dat kwetsbaarheden onopgemerkt in productie kunnen terechtkomen en helpt om sneller te reageren op nieuwe dreigingen \autocite{Snyk2026}.
 
 Naast SAST, DAST en SCA worden in moderne DevSecOps-pipelines ook infrastructuurdefinities geanalyseerd via zogenaamde Infrastructure-as-Code (IaC)-scanners. Tools zoals Checkov voeren statische analyse uit op de Terraform-, Kubernetes- en andere IaC-bestanden op basis van een uitgebreide set beveiligings- en compliancepolicier \autocite{CheckovDoc,CheckovGithub}. Hiermee kunnen misconfiguraties, zoals publiek toegankelijke resources of ontbrekende encryptie, al vóór deployment worden opgespoord. Secrets-scanners analyseren broncode, configuratiebestanden en soms ook de volledige Git-historiek op patronen en hoge-entropy strings die op gelekte credentials wijzen \autocite{TrufflehogDeepDive}. Trufflehog is een open source tool die zowel Git-repositories als filesystems kan scannen en daarbij ook verwijderde of niet meer zichtbare commits in de geschiedenis meeneemt, zodat gelekte secrets niet onbewust in producte kunnen terechtkomen \autocite{TrufflehogGithub,TrufflehogBlogGitVsFs,TrufflehogBlogDeletedCommits}.
 
-De OWASP Top 10 \autocite{OWASPTop10_2025} fungeert hierbij vaak als referentiekader om te bepalen welke soorten kwetsbaarheden minstens automatisch afgedekt moeten worden. Voor deze bachelorproef kan een shortlist van relevante categorieën worden opgesteld, zoals injectie, broken access control en kwetsbaarheden in afhankelijkheden, die door de pipeline automatisch getest worden. Tools zoals SAST-scanners voor broncode, DAST-scanners voor runtime-testing en dependency-scanners voor bibliotheken kunnen als aparte stappen in de pipeline worden geïntegreerd, waarbij de build wordt geblokkeerd als ernstige kwetsbaarheden worden gevonden.
+De OWASP Top 10 \autocite{OWASPTop10_2025} fungeert hierbij vaak als referentiekader om te bepalen welke soorten kwetsbaarheden minstens automatisch afgedekt moeten worden. Voor deze bachelorproef kan een shortlist van relevante categorieën worden opgesteld, zoals injectie, broken access control en kwetsbaarheden in afhankelijkheden, die door de pipeline automatisch getest worden. Tools zoals SAST-scanners voor broncode, DAST-scanners voor runtime-testing en\\dependency-scanners voor bibliotheken kunnen als aparte stappen in de pipeline worden geïntegreerd, waarbij de build wordt geblokkeerd als ernstige kwetsbaarheden worden gevonden.
 
 \section{Software Bill of Materials}
 \subsection{Wat is een Software Bill of Materials?}
@@ -149,11 +149,11 @@ Dit moet dan ook voldoen aan volgende minimumeisen (BSI TR-03183-2):
   \label{tab:cra-sbom-fields}
 \end{table}
   
-Hoewel BSI TR-03183-2 een Duitse richtlijn is, vormt deze de facto standaard voor heel de EU. Duitsland loopt voorop in CRA-implementatie en cybersecurity-wetgeving binnen Europa \autocite{Robyn2025}.
+Hoewel BSI TR-03183-2 een Duitse richtlijn is, vormt deze de facto standaard voor heel de EU. Duitsland loopt voorop in CRA-implementatie en cybersecurity-\\wetgeving binnen Europa \autocite{Robyn2025}.
 
 \section{CVE-Analyse en Vulnerability Management}
 \subsection{NVD/CPE-matching}
-CVE-Records worden verrijkt door de National Vulnerability Database (NVD) met gestructureerde metadata voor geautomatiseerde matching. De NVD bevat naast de CVE-details ook \textbf{CVSS-scores} (score van 0 tot 10, hoe hoger hoe ernstiger) en \textbf{CPE-matchcriteria} (gestandaardiseerde identifiers voor getroffen software/hardware) en referenties naar getroffen producten \autocite{NVD_API}.
+CVE-Records worden verrijkt door de National Vulnerability Database (NVD) met gestructureerde metadata voor geautomatiseerde matching. De NVD bevat naast de CVE-details ook \textbf{CVSS-scores} (score van 0 tot 10, hoe hoger hoe ernstiger) en \textbf{CPE-matchcriteria} (gestandaardiseerde identifiers voor getroffen software of\\hardware) en referenties naar getroffen producten \autocite{NVD_API}.
 
 CPE (Common Platform Enumeration) strings identificeren vendor, product en versie van getroffen software, volgens het gestandaardiseerde patroon van NIST \autocite{CPE_23}:
 \begin{verbatim}
@@ -204,11 +204,11 @@ OWASP Dependency-Check scant alle populaire package managers (Maven, npm, pip, e
 
 Naast dependency-scanners op broncode bestaan er ook tools die specifiek containerimages analyseren op kwetsbaarheden. Deze tools combineren informatie over de besturingssysteempakketten en applicatie dependencies met gegevens uit kwetsbaarheidsdatabanken zoals de NVD \autocite{AnchoreOpensource,BionSyftGrype}.
 
-Grype is een open source vulnerabilityscanner uit het Anchore-ecosysteem die containerimages, filesystems en SBOM-bestanden kan analyseren op bekende kwetsbaarheden \autocite{GrypeGithub}. De tool ondersteunt zowel rechtstreekse scans van images via Docker of Podman als indirecte scans op basis van eerder gegenereerde SBOM's, bijvoorbeeld afkomstig van Syft \autocite{JitSyftGrype}. Dit zorgt er ook voor dat Grype makkelijk geïntegreerd kan worden in CI/CD-pipelines om containerimages nog vóór deployment automatisch te valideren op HIGH- en CRITICAL-kwetsbaarheden. 
+Grype is een open source vulnerabilityscanner uit het Anchore-ecosysteem die containerimages, filesystems en SBOM-bestanden kan analyseren op bekende kwetsbaarheden \autocite{GrypeGithub}. De tool ondersteunt zowel rechtstreekse scans van images via Docker of Podman als indirecte scans op basis van eerder gegenereerde SBOM's, bijvoorbeeld afkomstig van Syft \autocite{JitSyftGrype}. Dit zorgt er ook voor dat Grype makkelijk geïntegreerd kan worden in CI/CD-pipelines om containerimages nog vóór deployment automatisch te valideren op HIGH- en CRITICAL-\\kwetsbaarheden. 
 
 \subsection{Risk scoring (CVSS)}
 
-Het Common Vulnerability Scoring System (CVSS) is een open standaardkader om de ernst van kwetsbaarheden te kwantificeren op een schaal van 0.0 tot 10.0 \autocite{firstCVSSv4}. CVSS v4.0 (Common vulnerability Scoring System) toont de ernst aan van kwetsbaarheden op een schaal van 0.0 tot 10.0 via vier metriekgroepen: Base, Threat, Supplemental en Environmental \autocite{firstCVSSv4}
+Het Common Vulnerability Scoring System (CVSS) is een open standaardkader om de ernst van kwetsbaarheden te kwantificeren op een schaal van 0.0 tot 10.0\\\autocite{firstCVSSv4}. CVSS v4.0 (Common vulnerability Scoring System) toont de ernst aan van kwetsbaarheden op een schaal van 0.0 tot 10.0 via vier metriekgroepen: Base, Threat, Supplemental en Environmental \autocite{firstCVSSv4}
 
 De \textbf{Base Score} berekent intrinsieke eigenschappen via 11 metrics:
 \begin{itemize}
@@ -297,7 +297,7 @@ Dit platform ondersteunt zowel broncode- als dependency-analyse en kan integrere
 Voordelen in deze context:
 \begin{itemize}
   \item Je hebt maar één platform nodig voor SAST, SCA, Container en IaC met uniforme rapportage.
-  \item Standaardondersteuning voor de generatie van SBOM en koppeling aan NVD/CVE-data. 
+  \item Standaardondersteuning voor de generatie van SBOM en koppeling aan\\NVD/CVE-data. 
   \item Het heeft goede integraties met Jenkins.
 \end{itemize}
 
@@ -306,7 +306,7 @@ Nadelen:
   \item Commerciële licentie is nodig voor volledige dekking (SAST, container, IaC) en valt dus buiten budget.
 \end{itemize}
 \subsubsection{Aikido Security}
-Aikido biedt een geïntegreerd AppSecc-platform met zowel SAST als SCA-functionaliteit, gericht op lage false positives en eenvoudige integratie in bestaande DevOps-workflows \autocite{AikidoPlatform}.
+Aikido biedt een geïntegreerd AppSecc-platform met zowel SAST als SCA-\\functionaliteit, gericht op lage false positives en eenvoudige integratie in bestaande DevOps-\\workflows \autocite{AikidoPlatform}.
 Het platform combineert:
 \begin{itemize}
   \item Statische code-analyse (SAST) voor eigen applicatiecode.
@@ -317,7 +317,7 @@ Aikido ondersteunt SBOM-achtige dependency-overzichten die gekoppeld worden aan 
 
 Voordelen in deze context:
 \begin{itemize}
-  \item Combineert SAST en SCA in één platform, met minder configuratie-inspanning dan aparte tools.
+  \item Combineert SAST en SCA in één platform, met minder configuratie-\\inspanning dan aparte tools.
   \item Jenkins-integratie via local scanner, geschikt voor on-premises pipelines.
   \item Focus op lage false positive rates, wat ontwikkelaars minder frustreert en tijd bespaart, waardoor team moraal omhoog gaat.
 \end{itemize}
@@ -408,7 +408,7 @@ Trufflehog is een open source secrets-scanner die Git-repositoriesn Dockerimages
 
 \subsubsection{Checkov (IaC-scanning)}
 
-Checkov is een open source static analysis-tool voor Infrastructure-as-Code die Terraform-, Kubernetes-, CloudFormation- en andere configuratiebestanden controleert op security- en complianceproblemen \autocite{CheckovDoc,CheckovGithub}. De tool gebruik policy-as-code regels om onder meer te detecteren of opslag niet versleuteld is, securitygroups te open zijn of cloudresources publiek toegankelijk zijn \autocite{CheckovTerraformGuide}. Hoewel Checkov relevant is voor een bredere DevSecOps-aanpak, valt dit in deze bachelorproef buiten de scope van de Proof of Concept.
+Checkov is een open source static analysis-tool voor Infrastructure-as-Code die\\Terraform-, Kubernetes-, CloudFormation- en andere configuratiebestanden controleert op security- en complianceproblemen \autocite{CheckovDoc,CheckovGithub}. De tool gebruik policy-as-code regels om onder meer te detecteren of opslag niet versleuteld is, securitygroups te open zijn of cloudresources publiek toegankelijk zijn \autocite{CheckovTerraformGuide}. Hoewel Checkov relevant is voor een bredere DevSecOps-aanpak, valt dit in deze bachelorproef buiten de scope van de Proof of Concept.
 
 \subsubsection{OWASP ZAP}
 OWASP ZAP is een open source DAST-tool (Dynamic Application Security Testing) die runtime-scans uitvoert op actieve webapplicaties en API's. Het detecteert kwetsbaarheden zoals XSS, SQL-injectie, CSRF, broken access control en security misconfiguraties door zich te gedragen als een externe aanvaller \autocite{AppSecSanta2025,OWASPZAPDocs}.
@@ -457,7 +457,7 @@ Vervolgens een korte samenvatting van alle besproken tools~\ref{tab:tool-compari
 \end{table}
 
 \subsubsection{Toolselectie}
-Voor deze bachelorproef is gekozen voor de combinatie \textbf{Syft (SBOM), OWASP Dependency-Check (SCA op applicatieniveau), Grype (container image scanning)} en \textbf{SonarQube (SAST)}, omwille van:
+Voor deze bachelorproef is gekozen voor de combinatie \textbf{Syft (SBOM), OWASP\\Dependency-Check (SCA op applicatieniveau), Grype (container image scanning)} en \textbf{SonarQube (SAST)}, omwille van:
 \begin{itemize}
     \item \textbf{Volledig open source} (geen budgetbeperkingen)
     \item \textbf{Native Jenkins integratie}
@@ -466,7 +466,7 @@ Voor deze bachelorproef is gekozen voor de combinatie \textbf{Syft (SBOM), OWASP
 
 \subsection{Bestaande CRA-compliance pipelines}
 
-Hier zullen er twee concrete voorbeelden besproken worden van pipelines die voldoen aan CRA-vereisten zoals SBOM-generatie, CVE-scanning en compliance-rapportering. Deze cases tonen hoe de geanalyseerde tools in de praktijk worden ingezet.
+Hier zullen er twee concrete voorbeelden besproken worden van pipelines die voldoen aan CRA-vereisten zoals SBOM-generatie, CVE-scanning en compliance-\\rapportering. Deze cases tonen hoe de geanalyseerde tools in de praktijk worden ingezet.
 
 \subsubsection{Red Hat Advanced Developer Suite (Enterprise Case)}
 
