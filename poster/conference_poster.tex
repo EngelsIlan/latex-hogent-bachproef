@@ -9,56 +9,50 @@
 % Info over de opleiding
 \course{Bachelorproef}
 \studyprogramme{toegepaste informatica}
-\academicyear{2022-2023}
+\academicyear{2025-2026}
 \institution{Hogeschool Gent, Valentin Vaerwyckweg 1, 9000 Gent}
 
 % Info over de bachelorproef
-\title{Titel van uw bachelorproef}
-\subtitle{Ondertitel (eventueel)}
-\author{Voornaam Naam}
-\email{voornaam.familienaam@student.hogent.be}
-\supervisor{Voornaam Naam}
-\cosupervisor{Voornaam Naam (Bedrijf)}
+\title{Cybersecurity-automatisatie in CI/CD-pipelines voor CRA-compliance}
+%\subtitle{Ondertitel (eventueel)}
+\author{Ilan Engels}
+\email{ilan.engels@student.hogent.be}
+\supervisor{Pieter-Jan Maenhaut}
+\cosupervisor{Moreno Robyn (Excentis)}
 
 % Indien ingevuld, wordt deze informatie toegevoegd aan het einde van de
 % abstract. Zet in commentaar als je dit niet wilt.
 \specialisation{Systeem- en Netwerkbeheer}
-\keywords{Lambda-calculus, Scheme}
-\projectrepo{https://github.com/user/repo}
+\keywords{CRA, Cybersecurity, CI/CD, Jenkins, Pipeline, DevSecOps, Compliance, SBOM, SCA, SAST, DAST}
+\projectrepo{https://github.com/EngelsIlan/BAP}
 
 \begin{document}
 
 \maketitle
 
 \begin{abstract}
-It's only a model.
-You don't vote for kings. Who's that then? We found them. Ni! Ni! Ni! Ni!
-The nose? On second thoughts, let's not go there. It is a silly place. Bloody Peasant! And the hat. She's a witch! Where'd you get the coconuts?
+  Deze bachelorproef onderzoekt hoe CRA-compliance geautomatiseerd kan worden binnen CI/CD-pipelines. De focus ligt op een Jenkins-omgeving bij Excentis, waar momenteel nog geen securitycontroles worden uitgevoerd. Er werd een Proof of Concept ontwikkeld met geautomatiseerde securitystappen voor SBOM-generatie, dependency scanning, SAST, DAST en secrets scanning. De pipeline gebruikt Syft, OWASP Dependency-Check, SonarQube, Grype, TruffleHog en OWASP ZAP. De resultaten tonen aan dat CRA-relevante securitycontroles technisch kunnen worden geïntegreerd in een bestaande CI/CD-pipeline zonder het ontwikkelproces fundamenteel te verstoren.
 \end{abstract}
 
 \begin{multicols}{2} % This is how many columns your poster will be broken into, a portrait poster is generally split into 2 columns
 
 \section{Introductie}
 
-Be quiet! Found them? In Mercia?! The coconut's tropical! But you are dressed as one… Well, what do you want? Knights of Ni, we are but simple travelers who seek the enchanter who lives beyond these woods.
+De toenemende digitalisering van softwareontwikkeling brengt niet alleen efficiëntiewinst met zich mee, maar verhoogt ook de nood aan structurele beveiliging. Tegelijk legt de Europese Cyber Resilience Act (CRA) strengere eisen op aan softwareproducenten om digitale producten aantoonbaar veilig en beheersbaar te maken voor ze op de markt worden gebracht. Voor organisaties die software ontwikkelen, betekent dit dat beveiliging niet langer een afzonderlijke eindcontrole kan zijn, maar geïntegreerd moet worden in het volledige ontwikkelproces, en best zo vroeg als mogelijk.
 
-Well, what do you want? It's only a model. Camelot! We found them. We shall say `Ni' again to you, if you do not appease us.
+In deze bachelorproef wordt onderzocht hoe CRA-compliance geautomatiseerd kan worden binnen CI/CD-pipelines. De focus ligt op een Jenkins-omgeving bij Excentis, waar momenteel nog geen securitycontroles geïmplementeerd zijn. Dit vormt een relevante context, omdat handmatige controles moeilijk schaalbaar zijn en vaak tijdrovend en kostelijk zijn.
 
-The nose? Shut up! Burn her! I am your king. You don't vote for kings.
+Om dit probleem aan te pakken werd een Proof of Concept ontwikkeld waarin verschillende securitycontroles worden geïntegreerd in een pipeline. Daarbij werd onder meer gebruikgemaakt van SBOM-generatie, dependency scanning, SCA, SAST, DAST en secrets scanning. Voor de implementatie werden Syft, OWASP Dependency-Check, SonarQube, Grype, TruffleHog en OWASP ZAP ingezet.
 
-You can't expect to wield supreme power just `cause some watery tart threw a sword at you! Well, we did do the nose. I don't want to talk to you no more, you empty-headed animal food trough water! I fart in your general direction! Your mother was a hamster and your father smelt of elderberries! Now leave before I am forced to taunt you a second time!
-
-Why do you think that she is a witch? We want a shrubbery!! I don't want to talk to you no more, you empty-headed animal food trough water! I fart in your general direction! Your mother was a hamster and your father smelt of elderberries! Now leave before I am forced to taunt you a second time!
+Het doel van deze bachelorproef is niet enkel om te tonen dat dergelijke controles technisch mogelijk zijn, maar ook om te onderzoeken in hoeverre deze controles met de huidige tools binnen een bestaande CI/CD-pipeline kunnen worden geautomatiseerd. Op die manier wil dit onderzoek een concrete bijdrage leveren aan het ondersteunen van veilige softwareontwikkeling en het voorbereiden op toekomstige CRA-verplichtingen.
 
 \section{Experimenten}
 
-A newt? Camelot! Why? No, no, no! Yes, yes. A bit. But she's got a wart.
+Om te onderzoeken in hoeverre CRA-relevante securitycontroles geautomatiseerd kunnen worden binnen een bestaande CI/CD-pipeline werd een Proof of Concept opgesteld en getest in een Jenkins-omgeving. De experimenten hadden als doel na te gaan of verschillende beveiligingsstappen, zoals SBOM-generatie, dependency scanning, SCA, SAST, DAST en secrets scanning op een stabiele en bruikbare manier konden worden geïntegreerd.
 
-Shut up! I dunno. Must be a king. Who's that then? Look, my liege! On second thoughts, let's not go there. It is a silly place.
+De pipeline werd uitgeprobeerd op representatieve testprojecten om de werking van de afzonderlijke securitytools en hun onderlinge samenhang te evalueren. Daarbij werd onder meer gekeken naar de uitvoerbaarheid van de scans, de kwaliteit van de rapporten, de impact op de buildflow en de mate waarin kwetsbaarheden automatisch konden worden opgespoord en gerapporteerd.
 
-Shut up! Will you shut up?! No, no, no! Yes, yes. A bit. But she's got a wart. He hasn't got shit all over him. It's only a model. It's only a model.
-
-Bring her forward! I don't want to talk to you no more, you empty-headed animal food trough water! I fart in your general direction! Your mother was a hamster and your father smelt of elderberries! Now leave 
+Tijdens de experimenten werd vastgesteld dat de geselecteerde tools technisch combineerbaar zijn binnen één enkele pipeline, al bracht dit ook enkele uitdagingen met zich mee, zoals uitvoertijd, toolintegratie en false positives. De experimenten tonen aan dat geautomatiseerde CRA-controles in een CI/CD-omgeving technisch haalbaar zijn, maar op voorwaarde dat de pipeline correct wordt opgebouwd en afgestemd op de gebruikte technologieën.
 
 \section{Sectie met figuur}
 
