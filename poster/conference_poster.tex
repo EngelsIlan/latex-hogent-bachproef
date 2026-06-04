@@ -40,7 +40,7 @@
 
 De toenemende digitalisering van softwareontwikkeling brengt niet alleen efficiëntiewinst met zich mee, maar verhoogt ook de nood aan structurele beveiliging. Tegelijk legt de Europese Cyber Resilience Act (CRA) strengere eisen op aan softwareproducenten om digitale producten aantoonbaar veilig en beheersbaar te maken voor ze op de markt worden gebracht. Voor organisaties die software ontwikkelen, betekent dit dat beveiliging niet langer een afzonderlijke eindcontrole kan zijn, maar geïntegreerd moet worden in het volledige ontwikkelproces, en best zo vroeg als mogelijk.
 
-In deze bachelorproef wordt onderzocht hoe CRA-compliance geautomatiseerd kan worden binnen CI/CD-pipelines. De focus ligt op een Jenkins-omgeving bij Excentis, waar momenteel nog geen securitycontroles geïmplementeerd zijn. Dit vormt een relevante context, omdat handmatige controles moeilijk schaalbaar zijn en vaak tijdrovend en kostelijk zijn.
+In deze bachelorproef wordt onderzocht hoe CRA-compliance geautomatiseerd kan worden binnen CI/CD-pipelines.  Dit is dan ook de onderzoeksvraag, en dit werd opgesplitst in vragen over CRA, de impact voor Excentis, de technische opbouw van de pipeline en de inzet van geschikte securitytools. De focus ligt op een Jenkins-omgeving bij Excentis, waar momenteel nog geen securitycontroles geïmplementeerd zijn. Dit vormt een relevante context, omdat handmatige controles moeilijk schaalbaar zijn en vaak tijdrovend en kostelijk zijn.
 
 Om dit probleem aan te pakken werd een Proof of Concept ontwikkeld waarin verschillende securitycontroles worden geïntegreerd in een pipeline. Daarbij werd onder meer gebruikgemaakt van SBOM-generatie, dependency scanning, SCA, SAST, DAST en secrets scanning. Voor de implementatie werden Syft, OWASP Dependency-Check, SonarQube, Grype, TruffleHog en OWASP ZAP ingezet.
 
@@ -54,27 +54,63 @@ De pipeline werd uitgeprobeerd op representatieve testprojecten om de werking va
 
 Tijdens de experimenten werd vastgesteld dat de geselecteerde tools technisch combineerbaar zijn binnen één enkele pipeline, al bracht dit ook enkele uitdagingen met zich mee, zoals uitvoertijd, toolintegratie en false positives. De experimenten tonen aan dat geautomatiseerde CRA-controles in een CI/CD-omgeving technisch haalbaar zijn, maar op voorwaarde dat de pipeline correct wordt opgebouwd en afgestemd op de gebruikte technologieën.
 
-\section{Sectie met figuur}
 
-De {\LaTeX} figure-omgeving bepaalt zelf waar een afbeelding komt en dat is meestal niet op de plek in de tekst waar de figure-omgeving gedefinieerd wordt. Als je wilt forceren dat afbeeldingen toch in de flow van de tekst blijven, dan kan je dat zoals hieronder:
+\begin{center}
+  \captionof{table}{Gebruikte securitytools in de Jenkins-pipeline}
+  \label{tab:used-tools}
+  \small
+  \begin{tabular}{|l|l|l|}
+  \hline
+  \textbf{Tool} & \textbf{Rol} & \textbf{Output} \\
+  \hline
+  Syft & SBOM-generatie & CycloneDX SBOM \\
+  \hline
+  OWASP Dependency-Check & Dependency scanning & Vulnerability report \\
+  \hline
+  SonarQube & SAST & Code/security findings \\
+  \hline
+  Grype & Container scanning & Vulnerability report \\
+  \hline
+  TruffleHog & Secrets scanning & Secret findings \\
+  \hline
+  OWASP ZAP & DAST & Web security report \\
+  \hline
+  \end{tabular}
+\end{center}
+
+
+\section{Methodologie}
+
+De bachelorproef werd opgebouwd in vijf stappen. Eerst werd de probleemsituatie bij Excentis in kaart gebracht via een requirementsanalyse. Daarna volgde een literatuurstudie naar CRA, DevSecOps, SBOM, SCA, SAST, DAST en relevante securitytools.
 
 \begin{center}
   \captionsetup{type=figure}
-  \includegraphics[width=1.0\linewidth]{grail}
-  \captionof{figure}{He hasn't got shit all over him. The nose? Where'd you get the coconuts? What do you mean? We shall say `Ni' again to you, if you do not appease us}
+  \includegraphics[width=1.0\linewidth]{../graphics/Flow-diagram_poster.png}
+  \captionof{figure}{Overzicht van de Jenkins-pipeline met parallelle securitystappen.}
 \end{center}
 
-Let er wel op dat dit tot problemen met bladschikking kan leiden.
+Op basis daarvan werd een Proof of Concept ontworpen en geïmplementeerd in een Jenkins-pipeline Vervolgens werd de pipeline getest op representatieve applicaties en geëvalueerd op werking, bruikbaarheid en technische beperkingen.
+
+De resultaten van deze experimenten vormden tenslotte de basis van de conclusies en aanbevelingen voor toekomstig onderzoek.
+
+
 
 \section{Conclusies}
 
-Don't underestimate the Force. Oh God, my uncle. How am I ever gonna explain this? I suggest you try it again, Luke. This time, let go your conscious self and act on instinct. Don't be too proud of this technological terror you've constructed. The ability to destroy a planet is insignificant next to the power of the Force.
+Deze bachelorproef toont aan dat CRA-relevante securitycontroles in belangrijke mate geautomatiseerd kunnen worden in Jenkins-pipelines. De uitgewerkte Proof of Concept combineert SBOM-generatie, dependency scanning, SAST, container image scanning, secrets scanning en DAST in één geautomatiseerde workflow.
 
+De referentieruns bevestigen dat de pipeline kwetsbaarheden en validatieproblemen automatisch kan detecteren, rapporteren en in bepaalde gevallen ook blokkeren via quality gates op basis van CVSS-drempels. Tegelijk blijkt dat volledige CRA-compliance niet volledig door tooling alleen kan worden gegarandeerd, omdat false positives, contextafhankelijke risico-inschatting en aanvullende SBOM-vereisten nog manuele beoordeling vragen.
+
+Voor Excentis biedt dit onderzoek een concrete referentie-implementatie die aansluit bij de bestaande Jenkins-omgeving en een basis vormt voor verdere uitbouw richting CRA-compliance. De aanpak ondersteunt vroegtijdige detectie van kwetsbaarheden, duidelijkere rapportering en een meer gestructureerde securityaanpak binnen het ontwikkelproces.
+
+Dit onderzoek toont aan dat CI/CD-pipelines een relevante hefboom zijn voor het structureel integereren van security en compliance binnen het onderzoeksdomein van DevSecOps en CRA-voorbereiding.
 \section{Toekomstig onderzoek}
 
-I care. So, what do you think of her, Han? No! Alderaan is peaceful. We have no weapons. You can't possibly… I have traced the Rebel spies to her. Now she is my only link to finding their secret base.
+Toekomstig onderzoek kan zich richten op de verdere automatisering en uitbreiding van de ontwikkelde pipeline. Een eerste piste is het verder actualiseren en verrijken van de SBOM, zodat alle vereiste gegevens correct worden ingevuld, zoals vendorinformatie, SHA-512-hashes en andere verplichte metadata.
 
-Kid, I've flown from one side of this galaxy to the other. I've seen a lot of strange stuff, but I've never seen anything to make me believe there's one all-powerful Force controlling everything. There's no mystical energy field that controls my destiny. It's all a lot of simple tricks and nonsense. You are a part of the Rebel Alliance and a traitor! Take her away! 
+Daarnaast kan onderzocht worden hoe artefacten, scanresultaten en rapporten systematisch en reproduceerbaar kunnen worden opgeslagen en opgevolgd binnen de bestaande ontwikkelomgeving. Dit is belangrijk om de traceerbaarheid en auditbaarheid van de pipeline verder te versterken.
+
+Tot slot kan de integratie van aanvullende securitycontroles, zoals Checkov voor Dockerfiles en andere infrastructuur- of configuratiebestanden, verder worden uitgebreid en gevalideerd. Daarbij kan ook worden onderzocht in hoeverre betalende platforms zoals Aikido Security een meerwaarde bieden ten opzichte van een open source gebaseerde aanpak.
 
 \end{multicols}
 \end{document}
